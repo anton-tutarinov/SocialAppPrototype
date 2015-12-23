@@ -11,6 +11,11 @@
 		BAFF27AC1C2A766C00528707 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27AB1C2A766C00528707 /* ViewController.swift */; };
 		BAFF27AF1C2A766C00528707 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BAFF27AD1C2A766C00528707 /* Main.storyboard */; };
 		BAFF27B11C2A766C00528707 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BAFF27B01C2A766C00528707 /* Assets.xcassets */; };
+		BAFF27D31C2ADF7A00528707 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27D21C2ADF7A00528707 /* User.swift */; };
+		BAFF27D51C2AE85200528707 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27D41C2AE85200528707 /* Message.swift */; };
+		BAFF27DF1C2AECC200528707 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27DD1C2AECC200528707 /* Debug.swift */; };
+		BAFF27E01C2AECC200528707 /* HttpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27DE1C2AECC200528707 /* HttpService.swift */; };
+		BAFF27E21C2AED6F00528707 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27E11C2AED6F00528707 /* MessageCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +25,11 @@
 		BAFF27AE1C2A766C00528707 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BAFF27B01C2A766C00528707 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BAFF27B51C2A766C00528707 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BAFF27D21C2ADF7A00528707 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		BAFF27D41C2AE85200528707 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		BAFF27DD1C2AECC200528707 /* Debug.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Debug.swift; path = Utils/Debug.swift; sourceTree = "<group>"; };
+		BAFF27DE1C2AECC200528707 /* HttpService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HttpService.swift; path = Utils/HttpService.swift; sourceTree = "<group>"; };
+		BAFF27E11C2AED6F00528707 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,11 +64,24 @@
 			children = (
 				BAFF27A91C2A766C00528707 /* AppDelegate.swift */,
 				BAFF27AB1C2A766C00528707 /* ViewController.swift */,
+				BAFF27E11C2AED6F00528707 /* MessageCell.swift */,
+				BAFF27D41C2AE85200528707 /* Message.swift */,
+				BAFF27D21C2ADF7A00528707 /* User.swift */,
+				BAFF27DC1C2AECB700528707 /* Utils */,
 				BAFF27AD1C2A766C00528707 /* Main.storyboard */,
 				BAFF27B01C2A766C00528707 /* Assets.xcassets */,
 				BAFF27B51C2A766C00528707 /* Info.plist */,
 			);
 			path = SocialAppPrototype;
+			sourceTree = "<group>";
+		};
+		BAFF27DC1C2AECB700528707 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				BAFF27DD1C2AECC200528707 /* Debug.swift */,
+				BAFF27DE1C2AECC200528707 /* HttpService.swift */,
+			);
+			name = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -131,8 +154,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BAFF27E21C2AED6F00528707 /* MessageCell.swift in Sources */,
 				BAFF27AC1C2A766C00528707 /* ViewController.swift in Sources */,
+				BAFF27DF1C2AECC200528707 /* Debug.swift in Sources */,
+				BAFF27D51C2AE85200528707 /* Message.swift in Sources */,
 				BAFF27AA1C2A766C00528707 /* AppDelegate.swift in Sources */,
+				BAFF27D31C2ADF7A00528707 /* User.swift in Sources */,
+				BAFF27E01C2AECC200528707 /* HttpService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
