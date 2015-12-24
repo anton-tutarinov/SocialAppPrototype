@@ -184,7 +184,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wLV-JL-Mmb" customClass="ImageHolderView" customModule="SocialAppPrototype" customModuleProvider="target">
-                                                    <rect key="frame" x="220" y="21" width="94" height="80"/>
+                                                    <rect key="frame" x="224" y="21" width="90" height="80"/>
                                                     <subviews>
                                                         <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="V7t-Ze-Nej">
                                                             <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
@@ -199,7 +199,7 @@
                                                         <constraint firstAttribute="height" constant="80" id="Rwx-1y-CvK"/>
                                                         <constraint firstItem="V7t-Ze-Nej" firstAttribute="leading" secondItem="wLV-JL-Mmb" secondAttribute="leading" id="X1v-lf-bAC"/>
                                                         <constraint firstAttribute="bottom" secondItem="V7t-Ze-Nej" secondAttribute="bottom" id="cmv-f0-Oyy"/>
-                                                        <constraint firstAttribute="width" constant="94" id="jWQ-MJ-M5R"/>
+                                                        <constraint firstAttribute="width" constant="90" id="jWQ-MJ-M5R"/>
                                                     </constraints>
                                                 </view>
                                             </subviews>

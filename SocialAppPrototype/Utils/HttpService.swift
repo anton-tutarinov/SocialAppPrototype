@@ -6,7 +6,7 @@ class HttpService {
         case Post = "POST"
     }
     
-    func request(url url: String, params: [String: String]?, method: HttpMethod,
+    static func request(url url: String, params: [String: String]?, method: HttpMethod,
         completionHandler: (data: NSData?, response: NSURLResponse?, error: NSError?) -> Void) {
             let request = createRequest(url: url, params: params, method: method)
             let session = NSURLSession.sharedSession()
@@ -17,7 +17,7 @@ class HttpService {
             task.resume()
     }
     
-    func requestSync(url url: String, params: [String: String]?, method: HttpMethod,
+    static func requestSync(url url: String, params: [String: String]?, method: HttpMethod,
         completionHandler: (data: NSData?, response: NSURLResponse?, error: NSError?) -> Void) {
             let request = createRequest(url: url, params: params, method: method)
             let session = NSURLSession.sharedSession()
@@ -31,7 +31,7 @@ class HttpService {
             dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
     }
     
-    private func createRequest(url url: String, params: [String: String]?, method: HttpMethod) -> NSMutableURLRequest {
+    static func createRequest(url url: String, params: [String: String]?, method: HttpMethod) -> NSURLRequest {
         var urlString = "\(url)"
         let request: NSMutableURLRequest
         
@@ -57,7 +57,7 @@ class HttpService {
         return request
     }
     
-    private func paramsToString(params params: [String: String]) -> String {
+    private static func paramsToString(params params: [String: String]) -> String {
         var paramsString = String()
         for (key, value) in params {
             if paramsString.characters.count > 0 {

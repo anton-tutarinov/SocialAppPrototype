@@ -23,12 +23,22 @@ class ViewController: UIViewController {
         chatTableView.estimatedRowHeight = 102.0
         chatTableView.rowHeight = UITableViewAutomaticDimension
         
+        ChatService.sharedInstance.login({ (success: Bool, error: String?) -> Void in
+            if !success {
+                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                    self.showAlert("Login error", message: error!)
+                })
+            }
+        })
+        
+        
+        
         
         // TEST
-        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil, sender: nil))
-        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil, sender: nil))
-        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil, sender: nil))
-        messages.append(Message(messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, image: UIImage(named: "Test.png"), sender: nil))
+        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil))
+        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+        messages.append(Message(messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, image: UIImage(named: "Test.png")))
     }
 
     override func didReceiveMemoryWarning() {
@@ -55,8 +65,27 @@ class ViewController: UIViewController {
     }
     
     @IBAction func sendButtonHandler(sender: AnyObject) {
-        let message: String = messageTextField.text!
-        debugLog("message: \(message)")
+        if (ChatService.sharedInstance.isLogin()) {
+            let message: String = messageTextField.text!
+            
+            if (message.characters.count > 0) {
+                ChatService.sharedInstance.sendMessage(message: message, completion: { (message: String?, error: String?) -> Void in
+                    if (message != nil) {
+                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                            self.addNewMessage(message!)
+                        })
+                    } else {
+                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                            self.showAlert("Send message error", message: error!)
+                        })
+                    }
+                })
+                
+                messageTextField.text = ""
+            }
+        } else {
+            self.showAlert("Send message error", message: "You must login first!")
+        }
     }
     
     func keyboardWillShow(notification: NSNotification) {
@@ -76,12 +105,41 @@ class ViewController: UIViewController {
         messageTextField.resignFirstResponder()
     }
     
-    private func addNewMessage() {
-        
+    private func requestOldMessageList() {
+        if (ChatService.sharedInstance.isLogin()) {
+            let oldestId = (messages.count > 0) ? messages[0].id : 1
+            
+            ChatService.sharedInstance.loadOldMessages(oldestId, pageSize: 20, completion: { (messageList: [Message]?, error: String?) -> Void in
+                if (messageList != nil) {
+                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                        self.addOldMessages(messageList!)
+                    })
+                } else {
+                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                        self.showAlert("Load old messages error", message: error!)
+                    })
+                }
+            })
+        }
     }
     
-    private func addOldMessage() {
+    private func addNewMessage(message: String) {
         
+        
+//        chatTableView.reloadData()
+    }
+    
+    private func addOldMessages(messageList: [Message]) {
+        var newMessageList = [Message]()
+        newMessageList.appendContentsOf(messageList)
+        newMessageList.appendContentsOf(messages)
+        messages = newMessageList
+        
+        messages.sortInPlace({ ( left, right) -> Bool in
+            return left.id < right.id
+        })
+        
+        chatTableView.reloadData()
     }
     
     private func scrollToBottom() {
@@ -103,6 +161,17 @@ class ViewController: UIViewController {
             return "OutgoingImageMessageCell"
         }
     }
+    
+    private func showAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        
+        let okAction = UIAlertAction(title: "OK", style: .Default) { (action:UIAlertAction!) in
+            // empty
+        }
+        
+        alertController.addAction(okAction)
+        presentViewController(alertController, animated: true, completion:nil)
+    }
 }
 
 extension ViewController: UITableViewDataSource {
@@ -118,7 +187,7 @@ extension ViewController: UITableViewDataSource {
         let message = messages[indexPath.row]
         let cell = tableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message), forIndexPath: indexPath) as! MessageCell
         
-//        cell.setDate(message.date!)
+        cell.setDate(message.date!)
         
         switch (message.messageType!) {
         case Message.MessageType.InText:
@@ -144,3 +213,36 @@ extension ViewController: UITableViewDelegate {
         return emptySpace
     }
 }
+
+extension ViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if (scrollView.contentOffset.y == 0) {
+            requestOldMessageList()
+        }
+    }
+}
+
+
+
+
+
+//let textViewMaxSize: CGFloat = 300.0
+//
+//extension ViewController: UITextViewDelegate {
+//    func textViewDidChange(textView: UITextView) {
+//        
+//        let size = textView.bounds.size
+//        let newSize = textView.sizeThatFits(CGSize(width: size.width, height: CGFloat.max))
+//        
+////        if (size.height != newSize.height) && (newSize.height < textViewMaxSize) {
+////            UIView.setAnimationsEnabled(false)
+////            messageTextView?.beginUpdates()
+////            messageTextView?.endUpdates()
+////            UIView.setAnimationsEnabled(true)
+////            
+////            if let thisIndexPath = tableView?.indexPathForCell(self) {
+////                tableView?.scrollToRowAtIndexPath(thisIndexPath, atScrollPosition: .Bottom, animated: false)
+////            }
+////        }
+//    }
+//}
