@@ -1,11 +1,13 @@
 import UIKit
 
 class ViewController: UIViewController {
+    @IBOutlet weak var topPanel: UIView!
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var chatTableView: UITableView!
-    @IBOutlet weak var messageTextView: UITextView!
+//    @IBOutlet weak var messageTextView: UITextView!
     @IBOutlet weak var messageTextField: UITextField!
     @IBOutlet weak var sendButton: UIButton!
+    @IBOutlet weak var bottomPanel: UIView!
     
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
@@ -18,17 +20,15 @@ class ViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: "hideKeyboard:")
         self.view.addGestureRecognizer(tapGesture)
         
-//        chatTableView.rowHeight = UITableViewAutomaticDimension
+        chatTableView.estimatedRowHeight = 102.0
+        chatTableView.rowHeight = UITableViewAutomaticDimension
         
-//        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "incoming", image: nil, sender: nil))
-        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "", image: nil, sender: nil))
-//        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "", image: nil, sender: nil))
-//        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "", image: nil, sender: nil))
-//        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "", image: nil, sender: nil))
-//        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "", image: nil, sender: nil))
-//        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "", image: nil, sender: nil))
         
-        chatTableView.reloadData()
+        // TEST
+        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil, sender: nil))
+        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil, sender: nil))
+        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil, sender: nil))
+        messages.append(Message(messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, image: UIImage(named: "Test.png"), sender: nil))
     }
 
     override func didReceiveMemoryWarning() {
@@ -118,19 +118,20 @@ extension ViewController: UITableViewDataSource {
         let message = messages[indexPath.row]
         let cell = tableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message), forIndexPath: indexPath) as! MessageCell
         
-        cell.setDate(message.date!)
+//        cell.setDate(message.date!)
         
         switch (message.messageType!) {
         case Message.MessageType.InText:
-            cell.textLabel?.text = message.text!
+            cell.messageTextView.text = message.text!
+            cell.userNameLabel.text = "Username"
             break
             
         case Message.MessageType.OutText:
-            cell.textLabel?.text = message.text!
+            cell.messageTextView.text = message.text!
             break
             
         case Message.MessageType.OutImage:
-            
+            cell.pictureImageView.image = message.image!
             break
         }
         

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA553D041C2BCC210062D014 /* ImageHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA553D031C2BCC210062D014 /* ImageHolderView.swift */; };
+		BA553D061C2BE7BE0062D014 /* MessageTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA553D051C2BE7BE0062D014 /* MessageTextField.swift */; };
+		BA553D081C2BEDE70062D014 /* TopPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA553D071C2BEDE70062D014 /* TopPanelView.swift */; };
+		BA553D0A1C2BEE2F0062D014 /* BottomPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA553D091C2BEE2F0062D014 /* BottomPanelView.swift */; };
 		BAFF27AA1C2A766C00528707 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27A91C2A766C00528707 /* AppDelegate.swift */; };
 		BAFF27AC1C2A766C00528707 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27AB1C2A766C00528707 /* ViewController.swift */; };
 		BAFF27AF1C2A766C00528707 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BAFF27AD1C2A766C00528707 /* Main.storyboard */; };
@@ -16,9 +20,15 @@
 		BAFF27DF1C2AECC200528707 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27DD1C2AECC200528707 /* Debug.swift */; };
 		BAFF27E01C2AECC200528707 /* HttpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27DE1C2AECC200528707 /* HttpService.swift */; };
 		BAFF27E21C2AED6F00528707 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27E11C2AED6F00528707 /* MessageCell.swift */; };
+		BAFF27E41C2B126F00528707 /* IncomingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27E31C2B126F00528707 /* IncomingTextView.swift */; };
+		BAFF27E61C2B128200528707 /* OutgoingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFF27E51C2B128200528707 /* OutgoingTextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BA553D031C2BCC210062D014 /* ImageHolderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageHolderView.swift; sourceTree = "<group>"; };
+		BA553D051C2BE7BE0062D014 /* MessageTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageTextField.swift; sourceTree = "<group>"; };
+		BA553D071C2BEDE70062D014 /* TopPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopPanelView.swift; sourceTree = "<group>"; };
+		BA553D091C2BEE2F0062D014 /* BottomPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomPanelView.swift; sourceTree = "<group>"; };
 		BAFF27A61C2A766C00528707 /* SocialAppPrototype.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SocialAppPrototype.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAFF27A91C2A766C00528707 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BAFF27AB1C2A766C00528707 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -30,6 +40,8 @@
 		BAFF27DD1C2AECC200528707 /* Debug.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Debug.swift; path = Utils/Debug.swift; sourceTree = "<group>"; };
 		BAFF27DE1C2AECC200528707 /* HttpService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HttpService.swift; path = Utils/HttpService.swift; sourceTree = "<group>"; };
 		BAFF27E11C2AED6F00528707 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
+		BAFF27E31C2B126F00528707 /* IncomingTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingTextView.swift; sourceTree = "<group>"; };
+		BAFF27E51C2B128200528707 /* OutgoingTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingTextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +76,12 @@
 			children = (
 				BAFF27A91C2A766C00528707 /* AppDelegate.swift */,
 				BAFF27AB1C2A766C00528707 /* ViewController.swift */,
+				BAFF27E31C2B126F00528707 /* IncomingTextView.swift */,
+				BAFF27E51C2B128200528707 /* OutgoingTextView.swift */,
+				BA553D031C2BCC210062D014 /* ImageHolderView.swift */,
+				BA553D051C2BE7BE0062D014 /* MessageTextField.swift */,
+				BA553D071C2BEDE70062D014 /* TopPanelView.swift */,
+				BA553D091C2BEE2F0062D014 /* BottomPanelView.swift */,
 				BAFF27E11C2AED6F00528707 /* MessageCell.swift */,
 				BAFF27D41C2AE85200528707 /* Message.swift */,
 				BAFF27D21C2ADF7A00528707 /* User.swift */,
@@ -156,11 +174,17 @@
 			files = (
 				BAFF27E21C2AED6F00528707 /* MessageCell.swift in Sources */,
 				BAFF27AC1C2A766C00528707 /* ViewController.swift in Sources */,
+				BA553D041C2BCC210062D014 /* ImageHolderView.swift in Sources */,
 				BAFF27DF1C2AECC200528707 /* Debug.swift in Sources */,
 				BAFF27D51C2AE85200528707 /* Message.swift in Sources */,
 				BAFF27AA1C2A766C00528707 /* AppDelegate.swift in Sources */,
+				BAFF27E41C2B126F00528707 /* IncomingTextView.swift in Sources */,
 				BAFF27D31C2ADF7A00528707 /* User.swift in Sources */,
+				BA553D061C2BE7BE0062D014 /* MessageTextField.swift in Sources */,
+				BA553D0A1C2BEE2F0062D014 /* BottomPanelView.swift in Sources */,
 				BAFF27E01C2AECC200528707 /* HttpService.swift in Sources */,
+				BAFF27E61C2B128200528707 /* OutgoingTextView.swift in Sources */,
+				BA553D081C2BEDE70062D014 /* TopPanelView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +290,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = SocialAppPrototype/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.decode.SocialAppPrototype;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -277,6 +302,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = SocialAppPrototype/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.decode.SocialAppPrototype;
 				PRODUCT_NAME = "$(TARGET_NAME)";
