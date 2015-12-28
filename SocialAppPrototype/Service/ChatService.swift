@@ -1,6 +1,10 @@
 import Foundation
 
 class ChatService {
+    static let LoginResultNotification = "ChatService_LoginResult"
+    static let SendMessageResultNotification = "ChatService_SendMessageResult"
+    static let LoadOldMessageListResultNotification = "ChatService_LoadOldMessageList"
+    
     static let sharedInstance = ChatService()
     
     private let apiHost: String = "http://52.192.101.131"
@@ -15,44 +19,92 @@ class ChatService {
         return (session != nil)
     }
     
-    func login(completion: (success: Bool, error: String?) -> Void) {
-        let request = LoginRequest(url: "\(apiHost)/signup")
-        request.perform { (session, error) -> Void in
-            if (session != nil) {
-                self.session = session
-                completion(success: true, error: nil)
-            } else {
-                completion(success: false, error: error)
+    func login() {
+        if loadSession() {
+            let request = UpdateSessionRequest(url: "\(apiHost)/session", session: session!)
+            request.perform { (session: String?, error: String?) -> Void in
+                var userInfo = [String: AnyObject]()
+                
+                if (session != nil) {
+                    self.session = session
+                    self.saveSession()
+                    userInfo["result"] = true
+                } else {
+                    userInfo["result"] = false
+                    userInfo["error"] = error
+                }
+                
+                self.postNotification(name: ChatService.LoginResultNotification, userInfo: userInfo)
+            }
+        } else {
+            let request = LoginRequest(url: "\(apiHost)/signup")
+            request.perform { (session, error) -> Void in
+                var userInfo = [String: AnyObject]()
+                
+                if (session != nil) {
+                    self.session = session
+                    self.saveSession()
+                    userInfo["result"] = true
+                } else {
+                    userInfo["result"] = false
+                    userInfo["error"] = error
+                }
+                
+                self.postNotification(name: ChatService.LoginResultNotification, userInfo: userInfo)
             }
         }
     }
     
-    func updateSession(completion: (success: Bool, error: String?) -> Void) {
-        let request = UpdateSessionRequest(url: "\(apiHost)/session", session: session!)
-        request.perform { (session: String?, error: String?) -> Void in
-            if (session != nil) {
-                self.session = session
-                completion(success: true, error: nil)
-            } else {
-                completion(success: false, error: error)
-            }
-        }
-    }
-    
-    func loadOldMessages(oldestId: Int, pageSize: Int, completion: (messageList: [Message]?, error: String?) -> Void) {
+    func loadOldMessageList(oldestId oldestId: Int, pageSize: Int) {
         let request = MessageListRequest(url: "\(apiHost)/messages", oldestMessageId: oldestId, pageSize: pageSize, session: session!)
-        request.perform(completion)
+        request.perform( { (messageList, error) -> Void in
+            var userInfo = [String: AnyObject]()
+            
+            if (messageList != nil) {
+                userInfo["messageList"] = messageList
+            } else {
+                userInfo["error"] = error
+            }
+            
+            self.postNotification(name: ChatService.LoadOldMessageListResultNotification, userInfo: userInfo)
+        })
     }
     
-    func sendMessage(message message: String, completion: (message: String?, error: String?) -> Void) {
+    func sendMessage(message message: String) {
         let request = SendMessageRequest(url: "\(apiHost)/messages/message", message: message, session: session!)
         request.perform { (session: String?, message: String?, error: String?) -> Void in
+            var userInfo = [String: AnyObject]()
+            
             if (session != nil) && (message != nil) {
                 self.session = session
-                completion(message: message, error: nil)
+                self.saveSession()
+                userInfo["message"] = message
             } else {
-                completion(message: nil, error: error)
+                userInfo["error"] = error
             }
+            
+            self.postNotification(name: ChatService.SendMessageResultNotification, userInfo: userInfo)
+        }
+    }
+    
+    private func loadSession() -> Bool {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        if let session = defaults.objectForKey("session") as? String {
+            self.session = session
+            return true
+        }
+        
+        return false
+    }
+    
+    private func saveSession() {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(session, forKey: "session")
+    }
+    
+    private func postNotification(name name: String, userInfo: [String: AnyObject]? = nil) {
+        NSOperationQueue.mainQueue().addOperationWithBlock { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(name, object: self, userInfo: userInfo)
         }
     }
 }

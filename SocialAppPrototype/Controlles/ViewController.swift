@@ -23,18 +23,17 @@ class ViewController: UIViewController {
         chatTableView.estimatedRowHeight = 102.0
         chatTableView.rowHeight = UITableViewAutomaticDimension
         
-        ChatService.sharedInstance.login({ (success: Bool, error: String?) -> Void in
-            if !success {
-                NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                    self.showAlert(title: "Login error", message: error!)
-                })
-            }
-        })
+        ChatService.sharedInstance.login()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         let notificationCenter = NSNotificationCenter.defaultCenter()
+        
+        notificationCenter.addObserver(self, selector: Selector("loginResultNotification:"), name: ChatService.LoginResultNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("sendMessageResultNotification:"), name: ChatService.SendMessageResultNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("loadOldMessageListResultNotification:"), name: ChatService.LoadOldMessageListResultNotification, object: nil)
+        
         notificationCenter.addObserver(self, selector: Selector("keyboardWillShow:"), name: UIKeyboardWillShowNotification, object: nil)
         notificationCenter.addObserver(self, selector: Selector("keyboardWillHide:"), name: UIKeyboardWillHideNotification, object: nil)
     }
@@ -42,8 +41,6 @@ class ViewController: UIViewController {
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         NSNotificationCenter.defaultCenter().removeObserver(self)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -53,6 +50,7 @@ class ViewController: UIViewController {
         addNewMessage(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
         addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil))
         addNewMessage(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+        addNewMessage(Message(messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, image: UIImage(named: "Test")))
         
 //        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
 //        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
@@ -68,17 +66,7 @@ class ViewController: UIViewController {
             let message: String = messageTextField.text!
             
             if (message.characters.count > 0) {
-                ChatService.sharedInstance.sendMessage(message: message, completion: { (message: String?, error: String?) -> Void in
-                    if (message != nil) {
-                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            self.addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: message, image: nil))
-                        })
-                    } else {
-                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            self.showAlert(title: "Send message error", message: error!)
-                        })
-                    }
-                })
+                ChatService.sharedInstance.sendMessage(message: message)
                 
                 messageTextField.text = ""
                 messageTextField.resignFirstResponder()
@@ -101,6 +89,42 @@ class ViewController: UIViewController {
         view.layoutIfNeeded()
     }
     
+    func loginResultNotification(notification: NSNotification) {
+        guard let userInfo = notification.userInfo as? [String: AnyObject] else {
+            return
+        }
+        
+        if let result = userInfo["result"] as? Bool {
+            if result == false, let error = userInfo["error"] as? String {
+                showAlert(title: "Login error", message: error)
+            }
+        }
+    }
+    
+    func sendMessageResultNotification(notification: NSNotification) {
+        guard let userInfo = notification.userInfo as? [String: AnyObject] else {
+            return
+        }
+        
+        if let message = userInfo["message"] as? String {
+            addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: message, image: nil))
+        } else if let error = userInfo["error"] as? String {
+            showAlert(title: "Send message error", message: error)
+        }
+    }
+    
+    func loadOldMessageListResultNotification(notification: NSNotification) {
+        guard let userInfo = notification.userInfo as? [String: AnyObject] else {
+            return
+        }
+        
+        if let messageList = userInfo["messageList"] as? [Message]? {
+            addOldMessages(messageList!)
+        } else if let error = userInfo["error"] as? String {
+            showAlert(title: "Load old messages error", message: error)
+        }
+    }
+    
     func hideKeyboard(recognizer: UITapGestureRecognizer) {
         messageTextField.resignFirstResponder()
     }
@@ -108,18 +132,7 @@ class ViewController: UIViewController {
     private func requestOldMessageList() {
         if (ChatService.sharedInstance.isLogin()) {
             let oldestId = (messages.count > 0) ? messages[0].id : 1
-            
-            ChatService.sharedInstance.loadOldMessages(oldestId, pageSize: 20, completion: { (messageList: [Message]?, error: String?) -> Void in
-                if (messageList != nil) {
-                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                        self.addOldMessages(messageList!)
-                    })
-                } else {
-                    NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                        self.showAlert(title: "Load old messages error", message: error!)
-                    })
-                }
-            })
+            ChatService.sharedInstance.loadOldMessageList(oldestId: oldestId, pageSize: 20)
         }
     }
     
