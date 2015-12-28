@@ -2,8 +2,7 @@ import UIKit
 
 extension UIImage {
     static func existsOnSDCard(imagePath imagePath: String) -> Bool {
-        let folder = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.CachesDirectory,
-            NSSearchPathDomainMask.UserDomainMask, true)[0] as NSString
+        let folder = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
         let filePath = folder.stringByAppendingPathComponent(imagePath.getMD5)
         return NSFileManager.defaultManager().fileExistsAtPath(filePath)
     }
@@ -23,8 +22,7 @@ extension UIImage {
     }
     
     func saveOnSDCard(name: String) {
-        let folder = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.CachesDirectory,
-            NSSearchPathDomainMask.UserDomainMask, true)[0] as NSString
+        let folder = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
         let filePath = folder.stringByAppendingPathComponent(name.getMD5)
         
         if let data = UIImagePNGRepresentation(self) {

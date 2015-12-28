@@ -12,7 +12,6 @@ class Message {
     var messageType: MessageType?
     var date: NSDate?
     var text: String?
-    var image: UIImage?
     var imageUrl: String?
     
 //    var sender: User?
@@ -23,13 +22,5 @@ class Message {
         self.date = date
         self.text = text
         self.imageUrl = imageUrl
-    }
-    
-    // TEST
-    init(messageType: MessageType, date: NSDate, text: String?, image: UIImage?) {
-        self.messageType = messageType
-        self.date = date
-        self.text = text
-        self.image = image
     }
 }

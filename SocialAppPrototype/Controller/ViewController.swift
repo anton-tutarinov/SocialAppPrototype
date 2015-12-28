@@ -13,6 +13,8 @@ class ViewController: UIViewController {
     private var verticalOffset: CGFloat = 0.0
     private var messages = [Message]()
     
+    private var imageList = [String: UIImage]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,15 +25,26 @@ class ViewController: UIViewController {
         chatTableView.rowHeight = UITableViewAutomaticDimension
         
         ChatService.sharedInstance.login()
+        
+        //TEST
+        imageList["Test"] = UIImage(named: "Test")
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        imageList.removeAll()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         let notificationCenter = NSNotificationCenter.defaultCenter()
         
-        notificationCenter.addObserver(self, selector: Selector("loginResultNotification:"), name: ChatService.LoginResultNotification, object: nil)
-        notificationCenter.addObserver(self, selector: Selector("sendMessageResultNotification:"), name: ChatService.SendMessageResultNotification, object: nil)
-        notificationCenter.addObserver(self, selector: Selector("loadOldMessageListResultNotification:"), name: ChatService.LoadOldMessageListResultNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("loginResultNotification:"), name: ChatService.loginResultNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("sendMessageResultNotification:"), name: ChatService.sendMessageResultNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("loadOldMessageListResultNotification:"), name: ChatService.loadOldMessageListResultNotification, object: nil)
+        
+        notificationCenter.addObserver(self, selector: Selector("imageDownloaderSuccessNotification:"), name: ImageDownloader.successNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("imageDownloaderFailureNotification:"), name: ImageDownloader.failureNotification, object: nil)
         
         notificationCenter.addObserver(self, selector: Selector("keyboardWillShow:"), name: UIKeyboardWillShowNotification, object: nil)
         notificationCenter.addObserver(self, selector: Selector("keyboardWillHide:"), name: UIKeyboardWillHideNotification, object: nil)
@@ -46,10 +59,10 @@ class ViewController: UIViewController {
         verticalOffset = chatTableView.frame.size.height
         
         // TEST
-        addNewMessage(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
-        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil))
-        addNewMessage(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
-        addNewMessage(Message(messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, image: UIImage(named: "Test")))
+        addNewMessage(Message(messageId: 1, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
+        addNewMessage(Message(messageId: 2, messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", imageUrl: nil))
+        addNewMessage(Message(messageId: 3, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
+        addNewMessage(Message(messageId: 4, messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, imageUrl: "Test"))
         
 //        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
 //        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
@@ -106,7 +119,15 @@ class ViewController: UIViewController {
         }
         
         if let message = userInfo["message"] as? String {
-            addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: message, image: nil))
+            
+            // TEST
+            var lastId = 0
+            
+            if messages.count > 0 {
+                lastId = messages[messages.count - 1].id
+            }
+            
+            addNewMessage(Message(messageId: lastId + 1, messageType: Message.MessageType.OutText, date: NSDate(), text: message, imageUrl: nil))
         } else if let error = userInfo["error"] as? String {
             showAlert(title: "Send message error", message: error)
         }
@@ -118,10 +139,25 @@ class ViewController: UIViewController {
         }
         
         if let messageList = userInfo["messageList"] as? [Message]? {
-            addOldMessages(messageList!)
+            addOldMessageList(messageList!)
         } else if let error = userInfo["error"] as? String {
             showAlert(title: "Load old messages error", message: error)
         }
+    }
+    
+    func imageDownloaderSuccessNotification(notification: NSNotification) {
+        guard let userInfo = notification.userInfo as? [String: AnyObject] else {
+            return
+        }
+        
+        if let _ = userInfo["object"] as? MessageCell, let imageUrl = userInfo["imageUrl"] as? String {
+            imageList[imageUrl] = UIImage.loadFromSDCard(imageUrl)
+            chatTableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: .None)
+        }
+    }
+    
+    func imageDownloaderFailureNotification(notification: NSNotification) {
+        
     }
     
     func hideKeyboard(recognizer: UITapGestureRecognizer) {
@@ -148,7 +184,7 @@ class ViewController: UIViewController {
         chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
     }
     
-    private func addOldMessages(messageList: [Message]) {
+    private func addOldMessageList(messageList: [Message]) {
         for msg in messageList {
             let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(msg)) as! MessageCell
             fillCellWithMessage(cell: cell, message: msg)
@@ -195,7 +231,12 @@ class ViewController: UIViewController {
             break
             
         case Message.MessageType.OutImage:
-            cell.pictureImageView.image = message.image!
+            if let image = imageList[message.imageUrl!] {
+                cell.pictureImageView.image = image
+            } else {
+                ImageDownloader.sharedInstance.download(url: message.imageUrl!, object: cell)
+            }
+            
             break
         }
     }

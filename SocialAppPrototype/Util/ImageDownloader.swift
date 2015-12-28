@@ -52,4 +52,9 @@ class ImageDownloader {
             }
         })
     }
+    
+    func clear() {
+        operationQueue.cancelAllOperations()
+        clientQueue.removeAllObjects()
+    }
 }

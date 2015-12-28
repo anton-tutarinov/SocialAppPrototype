@@ -1,9 +1,9 @@
 import Foundation
 
 class ChatService {
-    static let LoginResultNotification = "ChatService_LoginResult"
-    static let SendMessageResultNotification = "ChatService_SendMessageResult"
-    static let LoadOldMessageListResultNotification = "ChatService_LoadOldMessageList"
+    static let loginResultNotification = "ChatService_LoginResult"
+    static let sendMessageResultNotification = "ChatService_SendMessageResult"
+    static let loadOldMessageListResultNotification = "ChatService_LoadOldMessageList"
     
     static let sharedInstance = ChatService()
     
@@ -34,7 +34,7 @@ class ChatService {
                     userInfo["error"] = error
                 }
                 
-                self.postNotification(name: ChatService.LoginResultNotification, userInfo: userInfo)
+                self.postNotification(name: ChatService.loginResultNotification, userInfo: userInfo)
             }
         } else {
             let request = LoginRequest(url: "\(apiHost)/signup")
@@ -50,7 +50,7 @@ class ChatService {
                     userInfo["error"] = error
                 }
                 
-                self.postNotification(name: ChatService.LoginResultNotification, userInfo: userInfo)
+                self.postNotification(name: ChatService.loginResultNotification, userInfo: userInfo)
             }
         }
     }
@@ -66,7 +66,7 @@ class ChatService {
                 userInfo["error"] = error
             }
             
-            self.postNotification(name: ChatService.LoadOldMessageListResultNotification, userInfo: userInfo)
+            self.postNotification(name: ChatService.loadOldMessageListResultNotification, userInfo: userInfo)
         })
     }
     
@@ -83,7 +83,7 @@ class ChatService {
                 userInfo["error"] = error
             }
             
-            self.postNotification(name: ChatService.SendMessageResultNotification, userInfo: userInfo)
+            self.postNotification(name: ChatService.sendMessageResultNotification, userInfo: userInfo)
         }
     }
     
