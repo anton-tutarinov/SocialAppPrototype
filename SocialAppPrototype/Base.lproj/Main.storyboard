@@ -30,21 +30,27 @@
                                         <color key="textColor" red="0.5725490196078431" green="0.58039215686274503" blue="0.59215686274509804" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nfw-S8-XPJ">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nfw-S8-XPJ">
                                         <rect key="frame" x="288" y="25" width="30" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="ded-M4-adV"/>
+                                            <constraint firstAttribute="width" constant="30" id="hAz-bB-A1q"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" weight="thin" pointSize="32"/>
                                         <state key="normal" title="+">
                                             <color key="titleColor" red="0.5725490196078431" green="0.58039215686274503" blue="0.59215686274509804" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
                                         <connections>
-                                            <action selector="addButtonHandler:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Hfq-DR-tns"/>
+                                            <action selector="addButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="zX1-53-XJs"/>
                                         </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="w4q-Tf-1aZ" secondAttribute="bottom" constant="10" id="WFS-Pu-ygJ"/>
+                                    <constraint firstAttribute="bottom" secondItem="nfw-S8-XPJ" secondAttribute="bottom" constant="8" id="YkV-D0-8Cd"/>
                                     <constraint firstItem="w4q-Tf-1aZ" firstAttribute="centerX" secondItem="4L4-xY-8D7" secondAttribute="centerX" id="ZCK-4t-kcg"/>
+                                    <constraint firstAttribute="trailing" secondItem="nfw-S8-XPJ" secondAttribute="trailing" constant="2" id="efX-Ms-AVF"/>
                                     <constraint firstAttribute="height" constant="63" id="pgi-f1-9Yv"/>
                                 </constraints>
                             </view>
@@ -244,7 +250,7 @@
                                         </constraints>
                                         <state key="normal" title="Send"/>
                                         <connections>
-                                            <action selector="sendButtonHandler:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UN2-ur-kFp"/>
+                                            <action selector="sendButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="osJ-XG-PXb"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -259,6 +265,7 @@
                                 </constraints>
                             </view>
                         </subviews>
+                        <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.96862745098039216" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="4L4-xY-8D7" secondAttribute="trailing" id="Fs5-Aw-QYw"/>
                             <constraint firstItem="4L4-xY-8D7" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="KIa-vH-3mo"/>

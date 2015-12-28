@@ -27,13 +27,14 @@ class ChatService {
         }
     }
     
-    func updateSession() {
-        let request = UpdateSessionRequest(url: "\(apiHost)/messages/message", session: session!)
+    func updateSession(completion: (success: Bool, error: String?) -> Void) {
+        let request = UpdateSessionRequest(url: "\(apiHost)/session", session: session!)
         request.perform { (session: String?, error: String?) -> Void in
             if (session != nil) {
                 self.session = session
+                completion(success: true, error: nil)
             } else {
-                //?????
+                completion(success: false, error: error)
             }
         }
     }

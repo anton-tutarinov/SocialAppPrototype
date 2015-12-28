@@ -11,14 +11,14 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
-    private var emptySpace: CGFloat = 0.0
+    private var verticalOffset: CGFloat = 0.0
     private var messages = [Message]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let tapGesture = UITapGestureRecognizer(target: self, action: "hideKeyboard:")
-        self.view.addGestureRecognizer(tapGesture)
+        view.addGestureRecognizer(tapGesture)
         
         chatTableView.estimatedRowHeight = 102.0
         chatTableView.rowHeight = UITableViewAutomaticDimension
@@ -26,24 +26,10 @@ class ViewController: UIViewController {
         ChatService.sharedInstance.login({ (success: Bool, error: String?) -> Void in
             if !success {
                 NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                    self.showAlert("Login error", message: error!)
+                    self.showAlert(title: "Login error", message: error!)
                 })
             }
         })
-        
-        
-        
-        
-        // TEST
-        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
-        messages.append(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil))
-        messages.append(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
-        messages.append(Message(messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, image: UIImage(named: "Test.png")))
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -60,11 +46,24 @@ class ViewController: UIViewController {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
     }
     
-    @IBAction func addButtonHandler(sender: AnyObject) {
+    override func viewDidAppear(animated: Bool) {
+        verticalOffset = chatTableView.frame.size.height
+        
+        // TEST
+        addNewMessage(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", image: nil))
+        addNewMessage(Message(messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+        
+//        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+//        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+//        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
+    }
+    
+    @IBAction func addButtonPressed(sender: AnyObject) {
         
     }
     
-    @IBAction func sendButtonHandler(sender: AnyObject) {
+    @IBAction func sendButtonPressed(sender: AnyObject) {
         if (ChatService.sharedInstance.isLogin()) {
             let message: String = messageTextField.text!
             
@@ -72,33 +71,34 @@ class ViewController: UIViewController {
                 ChatService.sharedInstance.sendMessage(message: message, completion: { (message: String?, error: String?) -> Void in
                     if (message != nil) {
                         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            self.addNewMessage(message!)
+                            self.addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: message, image: nil))
                         })
                     } else {
                         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            self.showAlert("Send message error", message: error!)
+                            self.showAlert(title: "Send message error", message: error!)
                         })
                     }
                 })
                 
                 messageTextField.text = ""
+                messageTextField.resignFirstResponder()
             }
         } else {
-            self.showAlert("Send message error", message: "You must login first!")
+            showAlert(title: "Send message error", message: "You must login first!")
         }
     }
     
     func keyboardWillShow(notification: NSNotification) {
         if let userInfo = notification.userInfo,
             let keyboardRect = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue() {
-                self.keyboardSpaceConstraint?.constant = keyboardRect.height
-                self.view.layoutIfNeeded()
+                keyboardSpaceConstraint?.constant = keyboardRect.height
+                view.layoutIfNeeded()
         }
     }
     
     func keyboardWillHide(notification: NSNotification) {
-        self.keyboardSpaceConstraint?.constant = 0.0
-        self.view.layoutIfNeeded()
+        keyboardSpaceConstraint?.constant = 0.0
+        view.layoutIfNeeded()
     }
     
     func hideKeyboard(recognizer: UITapGestureRecognizer) {
@@ -116,20 +116,34 @@ class ViewController: UIViewController {
                     })
                 } else {
                     NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                        self.showAlert("Load old messages error", message: error!)
+                        self.showAlert(title: "Load old messages error", message: error!)
                     })
                 }
             })
         }
     }
     
-    private func addNewMessage(message: String) {
+    private func addNewMessage(message: Message) {
+        let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message)) as! MessageCell
         
+        fillCellWithMessage(cell: cell, message: message)
         
-//        chatTableView.reloadData()
+        let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
+        verticalOffset -= size.height
+        
+        messages.append(message)
+        chatTableView.reloadData()
+        chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
     }
     
     private func addOldMessages(messageList: [Message]) {
+        for msg in messageList {
+            let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(msg)) as! MessageCell
+            fillCellWithMessage(cell: cell, message: msg)
+            let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
+            verticalOffset -= size.height
+        }
+        
         var newMessageList = [Message]()
         newMessageList.appendContentsOf(messageList)
         newMessageList.appendContentsOf(messages)
@@ -140,13 +154,6 @@ class ViewController: UIViewController {
         })
         
         chatTableView.reloadData()
-    }
-    
-    private func scrollToBottom() {
-        let offsetY = chatTableView.contentSize.height - chatTableView.frame.size.height + chatTableView.contentInset.bottom
-        UIView.animateWithDuration(0.1, delay: 0.0, options: [.CurveEaseOut, .AllowUserInteraction], animations: { () -> Void in
-            self.chatTableView.setContentOffset(CGPoint(x: 0.0, y: offsetY), animated: false)
-            }, completion: nil)
     }
     
     private func getCellIdForMessage(message: Message) -> String {
@@ -162,7 +169,26 @@ class ViewController: UIViewController {
         }
     }
     
-    private func showAlert(title: String, message: String) {
+    private func fillCellWithMessage(cell cell: MessageCell, message: Message) {
+        cell.setDate(message.date!)
+        
+        switch (message.messageType!) {
+        case Message.MessageType.InText:
+            cell.messageTextView.text = message.text!
+            cell.userNameLabel.text = "Username"
+            break
+            
+        case Message.MessageType.OutText:
+            cell.messageTextView.text = message.text!
+            break
+            
+        case Message.MessageType.OutImage:
+            cell.pictureImageView.image = message.image!
+            break
+        }
+    }
+    
+    private func showAlert(title title: String, message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
         
         let okAction = UIAlertAction(title: "OK", style: .Default) { (action:UIAlertAction!) in
@@ -186,23 +212,9 @@ extension ViewController: UITableViewDataSource {
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let message = messages[indexPath.row]
         let cell = tableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message), forIndexPath: indexPath) as! MessageCell
+        cell.selectionStyle = UITableViewCellSelectionStyle.None
         
-        cell.setDate(message.date!)
-        
-        switch (message.messageType!) {
-        case Message.MessageType.InText:
-            cell.messageTextView.text = message.text!
-            cell.userNameLabel.text = "Username"
-            break
-            
-        case Message.MessageType.OutText:
-            cell.messageTextView.text = message.text!
-            break
-            
-        case Message.MessageType.OutImage:
-            cell.pictureImageView.image = message.image!
-            break
-        }
+        fillCellWithMessage(cell: cell, message: message)
         
         return cell
     }
@@ -210,7 +222,13 @@ extension ViewController: UITableViewDataSource {
 
 extension ViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return emptySpace
+        return (verticalOffset > 0.0 ? verticalOffset : 0.0)
+    }
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = UIColor.clearColor()
+        return headerView
     }
 }
 
@@ -221,10 +239,6 @@ extension ViewController: UIScrollViewDelegate {
         }
     }
 }
-
-
-
-
 
 //let textViewMaxSize: CGFloat = 300.0
 //
