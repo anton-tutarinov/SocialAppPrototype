@@ -4,7 +4,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var topPanel: UIView!
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var chatTableView: UITableView!
-//    @IBOutlet weak var messageTextView: UITextView!
     @IBOutlet weak var messageTextField: UITextField!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var bottomPanel: UIView!
@@ -252,24 +251,3 @@ extension ViewController: UIScrollViewDelegate {
         }
     }
 }
-
-//let textViewMaxSize: CGFloat = 300.0
-//
-//extension ViewController: UITextViewDelegate {
-//    func textViewDidChange(textView: UITextView) {
-//        
-//        let size = textView.bounds.size
-//        let newSize = textView.sizeThatFits(CGSize(width: size.width, height: CGFloat.max))
-//        
-////        if (size.height != newSize.height) && (newSize.height < textViewMaxSize) {
-////            UIView.setAnimationsEnabled(false)
-////            messageTextView?.beginUpdates()
-////            messageTextView?.endUpdates()
-////            UIView.setAnimationsEnabled(true)
-////            
-////            if let thisIndexPath = tableView?.indexPathForCell(self) {
-////                tableView?.scrollToRowAtIndexPath(thisIndexPath, atScrollPosition: .Bottom, animated: false)
-////            }
-////        }
-//    }
-//}
