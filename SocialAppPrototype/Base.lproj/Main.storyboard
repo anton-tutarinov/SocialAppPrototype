@@ -79,7 +79,7 @@
                                                         <constraint firstAttribute="width" constant="104" id="aMK-qj-nhz"/>
                                                         <constraint firstAttribute="height" constant="30" id="dyR-We-lbJ"/>
                                                     </constraints>
-                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
                                                     <color key="textColor" red="0.50196078431372548" green="0.50588235294117645" blue="0.51764705882352935" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
