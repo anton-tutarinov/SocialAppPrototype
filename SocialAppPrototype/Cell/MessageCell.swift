@@ -36,5 +36,6 @@ class MessageCell: UITableViewCell {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "hh:mm a"
         dateLabel.text = dateFormatter.stringFromDate(date)
+    
     }
 }

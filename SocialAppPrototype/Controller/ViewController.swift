@@ -218,7 +218,8 @@ class ViewController: UIViewController {
     }
     
     private func fillCellWithMessage(cell cell: MessageCell, message: Message) {
-        cell.setDate(message.date!)
+//        cell.setDate(message.date!)
+        cell.dateLabel.text = "12:15 PM"
         
         switch (message.messageType!) {
         case Message.MessageType.InText:
