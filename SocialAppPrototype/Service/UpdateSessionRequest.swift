@@ -1,25 +1,32 @@
 import Foundation
 
 class UpdateSessionRequest: Request {
-    private var session: String?
+    private var session: String
+    private var completion: (userData: [String: String]?, error: String?) -> Void
     
-    init(url: String, session: String) {
-        super.init(url: url)
-        
+    init(url: String, session: String, completion: (userData: [String: String]?, error: String?) -> Void) {
         self.session = session
+        self.completion = completion
+        
+        super.init(url: url)
     }
     
-    func perform(completion: (session: String?, error: String?) -> Void) {
-        var params = [String: String]()
-        params["session"] = session
+    override func execute() {
+        var headers = [String: String]()
+        headers["Content-Type"] = "application/json"
         
-        createRequest(params: params)
-        execute({ (result: [String : AnyObject]) -> Void in
-            if ((result["status"] as! String) == "ok") {
-                completion(session: result["session"] as? String, error: result["errorString"] as? String)
-            } else {
-                completion(session: nil, error: result["errorString"] as? String)
-            }
-        })
+        let body = "{ \"session\": \"\(session)\" }"
+        
+        createPostRequest(body: body, headers: headers)
+        super.execute()
+    }
+    
+    override func processResult(result result: [String: AnyObject]) {
+        if ((result["status"] as! String) == "ok") {
+            let user = result["User"] as? [String: String]
+            self.completion(userData: user, error: nil)
+        } else {
+            self.completion(userData: nil, error: result["errorString"] as? String)
+        }
     }
 }

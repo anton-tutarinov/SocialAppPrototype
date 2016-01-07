@@ -3,31 +3,34 @@ import Foundation
 class ChatService {
     static let loginResultNotification = "ChatService_LoginResult"
     static let sendMessageResultNotification = "ChatService_SendMessageResult"
-    static let loadOldMessageListResultNotification = "ChatService_LoadOldMessageList"
+    static let loadMessageListResultNotification = "ChatService_LoadMessageList"
     
     static let sharedInstance = ChatService()
     
-    private let apiHost: String = "http://52.192.101.131"
+    var user: User?
     
+    private let apiHost: String = "http://52.192.101.131"
     private var session: String?
+
+    private var opQueue = NSOperationQueue()
     
     private init() {
         
     }
     
     func isLogin() -> Bool {
-        return (session != nil)
+        return (user != nil)
     }
     
     func login() {
         if loadSession() {
-            let request = UpdateSessionRequest(url: "\(apiHost)/session", session: session!)
-            request.perform { (session: String?, error: String?) -> Void in
+            let request = UpdateSessionRequest(url: "\(apiHost)/session", session: session!,
+                completion: { (userData: [String: String]?, error: String?) -> Void in
                 var userInfo = [String: AnyObject]()
                 
-                if (session != nil) {
-                    self.session = session
-                    self.saveSession()
+                if (userData != nil) {
+                    let id = UInt(userData!["id"]!)
+                    self.user = User(id: id!, name: nil, imageUrl: nil)
                     userInfo["result"] = true
                 } else {
                     userInfo["result"] = false
@@ -35,55 +38,106 @@ class ChatService {
                 }
                 
                 self.postNotification(name: ChatService.loginResultNotification, userInfo: userInfo)
-            }
+            })
+            request.execute()
         } else {
-            let request = LoginRequest(url: "\(apiHost)/signup")
-            request.perform { (session, error) -> Void in
-                var userInfo = [String: AnyObject]()
-                
+            let request = LoginRequest(url: "\(apiHost)/signup", completion: { (session, error) -> Void in
                 if (session != nil) {
                     self.session = session
                     self.saveSession()
-                    userInfo["result"] = true
+                    
+                    let request = UpdateSessionRequest(url: "\(self.apiHost)/session", session: session!,
+                        completion: { (userData: [String: String]?, error: String?) -> Void in
+                            var userInfo = [String: AnyObject]()
+                            
+                            if (userData != nil) {
+                                let id = UInt(userData!["id"]!)
+                                self.user = User(id: id!, name: nil, imageUrl: nil)
+                                userInfo["result"] = true
+                            } else {
+                                userInfo["result"] = false
+                                userInfo["error"] = error
+                            }
+                            
+                            self.postNotification(name: ChatService.loginResultNotification, userInfo: userInfo)
+                    })
+                    request.execute()
                 } else {
+                    var userInfo = [String: AnyObject]()
+                    
                     userInfo["result"] = false
                     userInfo["error"] = error
+                    
+                    self.postNotification(name: ChatService.loginResultNotification, userInfo: userInfo)
                 }
-                
-                self.postNotification(name: ChatService.loginResultNotification, userInfo: userInfo)
-            }
+            })
+            request.execute()
         }
     }
     
-    func loadOldMessageList(oldestId oldestId: Int, pageSize: Int) {
-        let request = MessageListRequest(url: "\(apiHost)/messages", oldestMessageId: oldestId, pageSize: pageSize, session: session!)
-        request.perform( { (messageList, error) -> Void in
+    func loadMessageList(oldestId oldestId: UInt, pageSize: UInt) {
+        let request = MessageListRequest(url: "\(apiHost)/messages", oldestMessageId: oldestId, pageSize: pageSize, session: session!,
+            completion: { (messageList, error) -> Void in
             var userInfo = [String: AnyObject]()
             
             if (messageList != nil) {
+                userInfo["result"] = true
                 userInfo["messageList"] = messageList
             } else {
+                userInfo["result"] = false
                 userInfo["error"] = error
             }
             
-            self.postNotification(name: ChatService.loadOldMessageListResultNotification, userInfo: userInfo)
+            self.postNotification(name: ChatService.loadMessageListResultNotification, userInfo: userInfo)
         })
+        request.execute()
     }
     
     func sendMessage(message message: String) {
-        let request = SendMessageRequest(url: "\(apiHost)/messages/message", message: message, session: session!)
-        request.perform { (session: String?, message: String?, error: String?) -> Void in
+        let request = SendMessageRequest(url: "\(apiHost)/messages/message", message: message, session: session!,
+            completion: { (error: String?) -> Void in
             var userInfo = [String: AnyObject]()
             
-            if (session != nil) && (message != nil) {
-                self.session = session
-                self.saveSession()
-                userInfo["message"] = message
+            if (error == nil) {
+                userInfo["result"] = true
             } else {
+                userInfo["result"] = false
                 userInfo["error"] = error
             }
             
             self.postNotification(name: ChatService.sendMessageResultNotification, userInfo: userInfo)
+        })
+        request.execute()
+    }
+    
+    func sendImageMessage() {
+        
+    }
+    
+    private func updateSessionAndRepeat(prevRequest prevRequest: Request) {
+        let semaphore: dispatch_semaphore_t = dispatch_semaphore_create(0)
+        
+        opQueue.addOperationWithBlock { () -> Void in
+            let request = UpdateSessionRequest(url: "\(self.apiHost)/session", session: self.session!,
+                completion: { (userData: [String: String]?, error: String?) -> Void in
+                    var userInfo = [String: AnyObject]()
+                    
+                    if (userData != nil) {
+                        let id = UInt(userData!["id"]!)
+                        self.user = User(id: id!, name: nil, imageUrl: nil)
+                        userInfo["result"] = true
+                    } else {
+                        userInfo["result"] = false
+                        userInfo["error"] = error
+                    }
+                    
+                    dispatch_semaphore_signal(semaphore);
+            })
+            request.execute()
+            
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+            
+            prevRequest.execute()
         }
     }
     

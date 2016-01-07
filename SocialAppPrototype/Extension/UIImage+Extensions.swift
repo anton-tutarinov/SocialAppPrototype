@@ -1,13 +1,13 @@
 import UIKit
 
 extension UIImage {
-    static func existsOnSDCard(imagePath imagePath: String) -> Bool {
+    static func existsOnDisk(imagePath imagePath: String) -> Bool {
         let folder = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
         let filePath = folder.stringByAppendingPathComponent(imagePath.getMD5)
         return NSFileManager.defaultManager().fileExistsAtPath(filePath)
     }
     
-    static func loadFromSDCard(name: String) -> UIImage? {
+    static func loadFromDisk(name: String) -> UIImage? {
         let folder = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
         let filePath = folder.stringByAppendingPathComponent(name.getMD5)
         
@@ -21,7 +21,7 @@ extension UIImage {
         return nil
     }
     
-    func saveOnSDCard(name: String) {
+    func saveToDisk(name: String) {
         let folder = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
         let filePath = folder.stringByAppendingPathComponent(name.getMD5)
         

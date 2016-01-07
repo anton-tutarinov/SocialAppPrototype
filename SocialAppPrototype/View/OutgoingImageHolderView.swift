@@ -1,6 +1,6 @@
 import UIKit
 
-class ImageHolderView: UIView {
+class OutgoingImageHolderView: UIView {
     private let rightOffset: CGFloat = 3.0
     private let cornerOffset: CGFloat = 2.0
     private let cornerOffset2: CGFloat = 4.0

@@ -26,7 +26,7 @@ class ImageDownloader {
         operationQueue.addOperationWithBlock({
             if let data = NSData(contentsOfURL: NSURL(string: imageUrl)!) {
                 let image = UIImage(data: data)!
-                image.saveOnSDCard(imageUrl)
+                image.saveToDisk(imageUrl)
                 
                 NSOperationQueue.mainQueue().addOperationWithBlock({
                     let array = self.clientQueue.filteredArrayUsingPredicate(predicate) as [AnyObject]

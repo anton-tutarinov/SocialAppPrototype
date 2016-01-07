@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA36A5FB1C3E8DC400B05B0A /* IncomingImageHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA36A5FA1C3E8DC400B05B0A /* IncomingImageHolderView.swift */; };
 		BAFCAF061C3177EA009EC7CE /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEEB1C3177E9009EC7CE /* MessageCell.swift */; };
 		BAFCAF071C3177EA009EC7CE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEED1C3177E9009EC7CE /* ViewController.swift */; };
 		BAFCAF081C3177EA009EC7CE /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEEF1C3177E9009EC7CE /* String+Extensions.swift */; };
@@ -23,7 +24,7 @@
 		BAFCAF131C3177EA009EC7CE /* HttpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEFD1C3177EA009EC7CE /* HttpService.swift */; };
 		BAFCAF141C3177EA009EC7CE /* ImageDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEFE1C3177EA009EC7CE /* ImageDownloader.swift */; };
 		BAFCAF151C3177EA009EC7CE /* BottomPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAF001C3177EA009EC7CE /* BottomPanelView.swift */; };
-		BAFCAF161C3177EA009EC7CE /* ImageHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAF011C3177EA009EC7CE /* ImageHolderView.swift */; };
+		BAFCAF161C3177EA009EC7CE /* OutgoingImageHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAF011C3177EA009EC7CE /* OutgoingImageHolderView.swift */; };
 		BAFCAF171C3177EA009EC7CE /* IncomingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAF021C3177EA009EC7CE /* IncomingTextView.swift */; };
 		BAFCAF181C3177EA009EC7CE /* MessageTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAF031C3177EA009EC7CE /* MessageTextField.swift */; };
 		BAFCAF191C3177EA009EC7CE /* OutgoingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAF041C3177EA009EC7CE /* OutgoingTextView.swift */; };
@@ -34,6 +35,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BA36A5FA1C3E8DC400B05B0A /* IncomingImageHolderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingImageHolderView.swift; sourceTree = "<group>"; };
 		BA553D3B1C2C3E480062D014 /* BridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		BAFCAEEB1C3177E9009EC7CE /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		BAFCAEED1C3177E9009EC7CE /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -51,7 +53,7 @@
 		BAFCAEFD1C3177EA009EC7CE /* HttpService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpService.swift; sourceTree = "<group>"; };
 		BAFCAEFE1C3177EA009EC7CE /* ImageDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDownloader.swift; sourceTree = "<group>"; };
 		BAFCAF001C3177EA009EC7CE /* BottomPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomPanelView.swift; sourceTree = "<group>"; };
-		BAFCAF011C3177EA009EC7CE /* ImageHolderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageHolderView.swift; sourceTree = "<group>"; };
+		BAFCAF011C3177EA009EC7CE /* OutgoingImageHolderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingImageHolderView.swift; sourceTree = "<group>"; };
 		BAFCAF021C3177EA009EC7CE /* IncomingTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingTextView.swift; sourceTree = "<group>"; };
 		BAFCAF031C3177EA009EC7CE /* MessageTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageTextField.swift; sourceTree = "<group>"; };
 		BAFCAF041C3177EA009EC7CE /* OutgoingTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingTextView.swift; sourceTree = "<group>"; };
@@ -135,11 +137,12 @@
 			isa = PBXGroup;
 			children = (
 				BAFCAF001C3177EA009EC7CE /* BottomPanelView.swift */,
-				BAFCAF011C3177EA009EC7CE /* ImageHolderView.swift */,
+				BAFCAF011C3177EA009EC7CE /* OutgoingImageHolderView.swift */,
 				BAFCAF021C3177EA009EC7CE /* IncomingTextView.swift */,
 				BAFCAF031C3177EA009EC7CE /* MessageTextField.swift */,
 				BAFCAF041C3177EA009EC7CE /* OutgoingTextView.swift */,
 				BAFCAF051C3177EA009EC7CE /* TopPanelView.swift */,
+				BA36A5FA1C3E8DC400B05B0A /* IncomingImageHolderView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -251,7 +254,7 @@
 			files = (
 				BAFCAF0D1C3177EA009EC7CE /* LoginRequest.swift in Sources */,
 				BAFCAF0E1C3177EA009EC7CE /* MessageListRequest.swift in Sources */,
-				BAFCAF161C3177EA009EC7CE /* ImageHolderView.swift in Sources */,
+				BAFCAF161C3177EA009EC7CE /* OutgoingImageHolderView.swift in Sources */,
 				BAFCAF141C3177EA009EC7CE /* ImageDownloader.swift in Sources */,
 				BAFCAF081C3177EA009EC7CE /* String+Extensions.swift in Sources */,
 				BAFCAF071C3177EA009EC7CE /* ViewController.swift in Sources */,
@@ -267,6 +270,7 @@
 				BAFCAF101C3177EA009EC7CE /* SendMessageRequest.swift in Sources */,
 				BAFF27AA1C2A766C00528707 /* AppDelegate.swift in Sources */,
 				BAFCAF0C1C3177EA009EC7CE /* ChatService.swift in Sources */,
+				BA36A5FB1C3E8DC400B05B0A /* IncomingImageHolderView.swift in Sources */,
 				BAFCAF191C3177EA009EC7CE /* OutgoingTextView.swift in Sources */,
 				BAFCAF061C3177EA009EC7CE /* MessageCell.swift in Sources */,
 				BAFCAF0B1C3177EA009EC7CE /* User.swift in Sources */,

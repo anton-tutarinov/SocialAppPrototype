@@ -1,37 +1,35 @@
 import Foundation
 
 class SendMessageRequest: Request {
-    private var message: String?
-    private var session: String?
+    private var message: String
+    private var session: String
+    private var completion: (error: String?) -> Void
     
-    init(url: String,  message: String, session: String) {
-        super.init(url: url)
-        
+    init(url: String,  message: String, session: String, completion: (error: String?) -> Void) {
         self.message = message
         self.session = session
+        self.completion = completion
+        
+        super.init(url: url)
     }
     
-    func perform(completion: (session: String?, message: String?, error: String?) -> Void) {
-        var params = [String: String]()
-        params["session"] = session
-        params["message.text"] = message
+    override func execute() {
+        var headers = [String: String]()
+        headers["Content-Type"] = "application/json"
         
-        createRequest(params: params)
-        execute({ (result: [String : AnyObject]) -> Void in
-            if ((result["status"] as! String) == "ok") {
-                let session = result["status"] as! String
-                let message = result["status"] as! String
-                completion(session: session, message: message, error: result["errorString"] as? String)
-            } else {
-                completion(session: nil, message: nil, error: result["errorString"] as? String)
-            }
-        })
+        let body = "{ \"session\": \"\(session)\", \"message\": { \"text\": \"\(message)\" } }"
+        
+        createPostRequest(body: body, headers: headers)
+        super.execute()
     }
+    
+    override func processResult(result result: [String: AnyObject]) {
+        if ((result["status"] as! String) == "ok") {
+            self.completion(error: nil)
+        } else {
+            self.completion(error: result["errorString"] as? String)
+        }
+    }
+    
+//    dataString	String?	"{\"Message\":{\"user_id\":\"9\",\"created_at\":\"2016-01-07 18:20:46\",\"updated_at\":\"2016-01-07 18:20:46\",\"text\":\"gg\"}}"	Some
 }
-
-//{
-//    "session": "485fc381-e790-47a3-9794-1337c0a8fe68",
-//    "message": {
-//        "text": "Some message text"
-//    }
-//}

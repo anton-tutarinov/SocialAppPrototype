@@ -2,45 +2,49 @@ import Foundation
 
 class MessageListRequest: Request {
     private var session: String?
-    private var pageSize: Int = 0
-    private var oldestMessageId = 0
+    private var pageSize: UInt
+    private var oldestMessageId: UInt
+    private var completion: (messageList: [Message]?, error: String?) -> Void
     
-    init(url: String, oldestMessageId: Int, pageSize: Int, session: String) {
-        super.init(url: url)
-        
+    init(url: String, oldestMessageId: UInt, pageSize: UInt, session: String, completion: (messageList: [Message]?, error: String?) -> Void) {
         self.oldestMessageId = oldestMessageId
         self.pageSize = pageSize
         self.session = session
+        self.completion = completion
+        
+        super.init(url: url)
     }
     
-    func perform(completion: (messageList: [Message]?, error: String?) -> Void) {
+    override func execute() {
         var params = [String: String]()
         params["session"] = session
         params["paging_size"] = String(pageSize)
         params["oldest_message_id"] = String(oldestMessageId)
         
-        createRequest(params: params)
-        execute({ (result: [String : AnyObject]) -> Void in
-            if ((result["status"] as! String) == "ok") {
-                if let messages = result["messages"] as? [String: AnyObject] {
-                    var messageList = [Message]()
+        createGetRequest(params: params, headers: nil)
+        super.execute()
+    }
+    
+    override func processResult(result result: [String: AnyObject]) {
+        if ((result["status"] as! String) == "ok") {
+            if let messages = result["messages"] as? [AnyObject] {
+                var messageList = [Message]()
+                
+                for (item) in messages {
+                    let msg = self.parseMessage(item as? [String: AnyObject])
                     
-                    for (_, value) in messages {
-                        let msg = self.parseMessage(value as? [String: AnyObject])
-                        
-                        if (msg != nil) {
-                            messageList.append(msg!)
-                        }
+                    if (msg != nil) {
+                        messageList.append(msg!)
                     }
-                    
-                    completion(messageList: messageList, error: nil)
-                } else {
-                    completion(messageList: nil, error: "Invalid response format")
                 }
+                
+                self.completion(messageList: messageList, error: nil)
             } else {
-                completion(messageList: nil, error: result["errorString"] as? String)
+                self.completion(messageList: nil, error: "Invalid response format")
             }
-        })
+        } else {
+            self.completion(messageList: nil, error: result["errorString"] as? String)
+        }
     }
     
     private func parseMessage(dic: [String: AnyObject]?) -> Message? {
@@ -48,12 +52,53 @@ class MessageListRequest: Request {
             return nil
         }
         
-        let id = dic!["id"] as? Int
-        let text = dic!["text"] as? String
-        let imageUrl = dic!["image_url"] as? String
-        let date = dateFromString((dic!["updated_at"] as? String)!)
+//        {"Message":{"id":"12","text":"wwww","image_url":null,"updated_at":"2016-01-07 20:15:04"},"User":{"id":"11","nickname":"o8h4za","avatar_url":null}}
         
-        return Message(messageId: id!, messageType: Message.MessageType.InText, date: date, text: text, imageUrl: imageUrl)
+        if let messageData = dic!["Message"] as? [String: AnyObject],
+            let userData = dic!["User"] as? [String: AnyObject] {
+                let senderId = UInt(userData["id"]! as! String)!
+                let senderName = userData["nickname"] as? String
+                var senderAvatarUrl: String?
+                
+                if let url = userData["avatar_url"] as? String {
+                    senderAvatarUrl = url
+                }
+                
+                let sender = User(id: senderId, name: senderName, imageUrl: senderAvatarUrl)
+                
+                let messageId = UInt(messageData["id"]! as! String)!
+                let messageDate = dateFromString(messageData["updated_at"]! as! String)
+                var messageText: String?
+                var messageImageUrl: String?
+                
+                if let text = messageData["text"] as? String {
+                    messageText = text
+                }
+                
+                if let url = messageData["image_url"] as? String {
+                    messageImageUrl = url
+                }
+                
+                var messageType: Message.MessageType?
+                
+                if (ChatService.sharedInstance.user?.id == senderId) {
+                    if (messageImageUrl != nil) {
+                        messageType = Message.MessageType.OutImage
+                    } else {
+                        messageType = Message.MessageType.OutText
+                    }
+                } else {
+                    if (messageImageUrl != nil) {
+                        messageType = Message.MessageType.InImage
+                    } else {
+                        messageType = Message.MessageType.InText
+                    }
+                }
+                
+                return Message(messageId: messageId, messageType: messageType!, date: messageDate, text: messageText, imageUrl: messageImageUrl, sender: sender)
+        } else {
+            return nil;
+        }
     }
     
     private func dateFromString(dateString: String) -> NSDate {
@@ -62,26 +107,3 @@ class MessageListRequest: Request {
         return dateFormatter.dateFromString(dateString)!
     }
 }
-
-//{
-//    "messages": [
-//    {
-//    "Message":
-//    {
-//    "id": 1,
-//    "text": "Project name",
-//    "image_url": NULL,
-//    "updated_at": "2015-01-01 01:01:01",
-//    }
-//    },
-//    {
-//    "Message":
-//    {
-//    "id": 1,
-//    "text": NULL,
-//    "image_url": "http://example.com/image.png",
-//    "updated_at": "2015-01-01 01:01:01",
-//    }
-//    }
-//    ]
-//}

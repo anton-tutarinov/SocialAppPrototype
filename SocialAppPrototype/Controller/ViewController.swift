@@ -10,7 +10,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
-    private var verticalOffset: CGFloat = 0.0
+    private var topOffset: CGFloat = 0.0
     private var messages = [Message]()
     
     private var imageList = [String: UIImage]()
@@ -21,13 +21,13 @@ class ViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: "hideKeyboard:")
         view.addGestureRecognizer(tapGesture)
         
-        chatTableView.estimatedRowHeight = 102.0
+        chatTableView.estimatedRowHeight = 128.0
         chatTableView.rowHeight = UITableViewAutomaticDimension
         
         ChatService.sharedInstance.login()
         
         //TEST
-        imageList["Test"] = UIImage(named: "Test")
+//        imageList["Test"] = UIImage(named: "Test")
     }
     
     override func didReceiveMemoryWarning() {
@@ -41,7 +41,7 @@ class ViewController: UIViewController {
         
         notificationCenter.addObserver(self, selector: Selector("loginResultNotification:"), name: ChatService.loginResultNotification, object: nil)
         notificationCenter.addObserver(self, selector: Selector("sendMessageResultNotification:"), name: ChatService.sendMessageResultNotification, object: nil)
-        notificationCenter.addObserver(self, selector: Selector("loadOldMessageListResultNotification:"), name: ChatService.loadOldMessageListResultNotification, object: nil)
+        notificationCenter.addObserver(self, selector: Selector("loadMessageListResultNotification:"), name: ChatService.loadMessageListResultNotification, object: nil)
         
         notificationCenter.addObserver(self, selector: Selector("imageDownloaderSuccessNotification:"), name: ImageDownloader.successNotification, object: nil)
         notificationCenter.addObserver(self, selector: Selector("imageDownloaderFailureNotification:"), name: ImageDownloader.failureNotification, object: nil)
@@ -56,13 +56,13 @@ class ViewController: UIViewController {
     }
     
     override func viewDidAppear(animated: Bool) {
-        verticalOffset = chatTableView.frame.size.height
+        topOffset = chatTableView.frame.size.height
         
         // TEST
-        addNewMessage(Message(messageId: 1, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
-        addNewMessage(Message(messageId: 2, messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", imageUrl: nil))
-        addNewMessage(Message(messageId: 3, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
-        addNewMessage(Message(messageId: 4, messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, imageUrl: "Test"))
+//        addNewMessage(Message(messageId: 1, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
+//        addNewMessage(Message(messageId: 2, messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", imageUrl: nil))
+//        addNewMessage(Message(messageId: 3, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
+//        addNewMessage(Message(messageId: 4, messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, imageUrl: "Test"))
         
 //        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
 //        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
@@ -70,7 +70,12 @@ class ViewController: UIViewController {
     }
     
     @IBAction func addButtonPressed(sender: AnyObject) {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = false
+        imagePicker.sourceType = .PhotoLibrary
         
+        presentViewController(imagePicker, animated: true, completion: nil)
     }
     
     @IBAction func sendButtonPressed(sender: AnyObject) {
@@ -107,7 +112,15 @@ class ViewController: UIViewController {
         }
         
         if let result = userInfo["result"] as? Bool {
-            if result == false, let error = userInfo["error"] as? String {
+            if result == true {
+                var oldestId: UInt = 0
+                
+                if messages.count > 0 {
+                    oldestId = messages[0].id
+                }
+                
+                ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: 20)
+            } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Login error", message: error)
             }
         }
@@ -118,28 +131,26 @@ class ViewController: UIViewController {
             return
         }
         
-        if let message = userInfo["message"] as? String {
-            
-            // TEST
-            var lastId = 0
-            
-            if messages.count > 0 {
-                lastId = messages[messages.count - 1].id
+        if let result = userInfo["result"] as? Bool {
+            if result == true {
+                ChatService.sharedInstance.loadMessageList(oldestId: 0, pageSize: 1)
+            } else if let error = userInfo["error"] as? String {
+                showAlert(title: "Send message error", message: error)
             }
-            
-            addNewMessage(Message(messageId: lastId + 1, messageType: Message.MessageType.OutText, date: NSDate(), text: message, imageUrl: nil))
         } else if let error = userInfo["error"] as? String {
             showAlert(title: "Send message error", message: error)
         }
     }
     
-    func loadOldMessageListResultNotification(notification: NSNotification) {
+    func loadMessageListResultNotification(notification: NSNotification) {
         guard let userInfo = notification.userInfo as? [String: AnyObject] else {
             return
         }
         
-        if let messageList = userInfo["messageList"] as? [Message]? {
-            addOldMessageList(messageList!)
+        if let messageList = userInfo["messageList"] as? [Message] {
+            if (messageList.count > 0) {
+                addMessageList(messageList)
+            }
         } else if let error = userInfo["error"] as? String {
             showAlert(title: "Load old messages error", message: error)
         }
@@ -150,46 +161,52 @@ class ViewController: UIViewController {
             return
         }
         
-        if let _ = userInfo["object"] as? MessageCell, let imageUrl = userInfo["imageUrl"] as? String {
-            imageList[imageUrl] = UIImage.loadFromSDCard(imageUrl)
+        if /*let _ = userInfo["object"] as? MessageCell,*/ let imageUrl = userInfo["imageUrl"] as? String {
+            imageList[imageUrl] = UIImage.loadFromDisk(imageUrl)
             chatTableView.reloadSections(NSIndexSet(index: 0), withRowAnimation: .None)
         }
     }
     
     func imageDownloaderFailureNotification(notification: NSNotification) {
-        
+        debugLog("image download failed")
     }
     
     func hideKeyboard(recognizer: UITapGestureRecognizer) {
         messageTextField.resignFirstResponder()
     }
     
-    private func requestOldMessageList() {
+    private func requestMessageList() {
         if (ChatService.sharedInstance.isLogin()) {
             let oldestId = (messages.count > 0) ? messages[0].id : 1
-            ChatService.sharedInstance.loadOldMessageList(oldestId: oldestId, pageSize: 20)
+            ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: 20)
         }
     }
     
-    private func addNewMessage(message: Message) {
-        let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message)) as! MessageCell
-        
-        fillCellWithMessage(cell: cell, message: message)
-        
-        let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
-        verticalOffset -= size.height
-        
-        messages.append(message)
-        chatTableView.reloadData()
-        chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
-    }
+//    private func addNewMessage(message: Message) {
+//        let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message)) as! MessageCell
+//        
+//        fillCellWithMessage(cell: cell, message: message)
+//        
+//        let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
+//        topOffset -= size.height
+//        
+//        messages.append(message)
+//        chatTableView.reloadData()
+//        chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
+//    }
     
-    private func addOldMessageList(messageList: [Message]) {
-        for msg in messageList {
-            let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(msg)) as! MessageCell
-            fillCellWithMessage(cell: cell, message: msg)
-            let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
-            verticalOffset -= size.height
+    private func addMessageList(messageList: [Message]) {
+        if (topOffset > 0) {
+            for msg in messageList {
+                let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(msg)) as! MessageCell
+                fillCellWithMessage(cell: cell, message: msg)
+                let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
+                topOffset -= size.height
+                
+                if (topOffset < 0) {
+                    break
+                }
+            }
         }
         
         var newMessageList = [Message]()
@@ -198,16 +215,20 @@ class ViewController: UIViewController {
         messages = newMessageList
         
         messages.sortInPlace({ ( left, right) -> Bool in
-            return left.id < right.id
+            return left.date!.compare(right.date!) == NSComparisonResult.OrderedAscending
         })
         
         chatTableView.reloadData()
+        chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
     }
     
     private func getCellIdForMessage(message: Message) -> String {
         switch (message.messageType!) {
         case Message.MessageType.InText:
             return "IncomingTextMessageCell"
+            
+        case Message.MessageType.InImage:
+            return "IncomingImageMessageCell"
             
         case Message.MessageType.OutText:
             return "OutgoingTextMessageCell"
@@ -218,13 +239,23 @@ class ViewController: UIViewController {
     }
     
     private func fillCellWithMessage(cell cell: MessageCell, message: Message) {
-//        cell.setDate(message.date!)
-        cell.dateLabel.text = "12:15 PM"
+        cell.setDate(message.date!)
         
         switch (message.messageType!) {
         case Message.MessageType.InText:
             cell.messageTextView.text = message.text!
-            cell.userNameLabel.text = "Username"
+            cell.userNameLabel.text = message.sender?.name
+            break
+            
+        case Message.MessageType.InImage:
+            cell.userNameLabel.text = message.sender?.name
+            
+            if let image = imageList[message.imageUrl!] {
+                cell.pictureImageView.image = image
+            } else {
+                ImageDownloader.sharedInstance.download(url: message.imageUrl!, object: cell)
+            }
+            
             break
             
         case Message.MessageType.OutText:
@@ -252,6 +283,22 @@ class ViewController: UIViewController {
         alertController.addAction(okAction)
         presentViewController(alertController, animated: true, completion:nil)
     }
+    
+//    private func scrollToBottom() {
+//        let delay = 0.1 * Double(NSEC_PER_SEC)
+//        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+//        
+//        dispatch_after(time, dispatch_get_main_queue(), {
+//            
+//            let numberOfSections = self.chatTableView.numberOfSections
+//            let numberOfRows = self.chatTableView.numberOfRowsInSection(numberOfSections - 1)
+//            
+//            if numberOfRows > 0 {
+//                let indexPath = NSIndexPath(forRow: numberOfRows - 1, inSection: (numberOfSections - 1))
+//                self.chatTableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+//            }
+//        })
+//    }
 }
 
 extension ViewController: UITableViewDataSource {
@@ -276,7 +323,7 @@ extension ViewController: UITableViewDataSource {
 
 extension ViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return (verticalOffset > 0.0 ? verticalOffset : 0.0)
+        return (topOffset > 0.0 ? topOffset : 0.0)
     }
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -289,7 +336,30 @@ extension ViewController: UITableViewDelegate {
 extension ViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(scrollView: UIScrollView) {
         if (scrollView.contentOffset.y == 0) {
-            requestOldMessageList()
+            requestMessageList()
         }
     }
+}
+
+extension ViewController: UIImagePickerControllerDelegate {
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String: AnyObject]) {
+        if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            let width = pickedImage.size.width
+            let height = pickedImage.size.height
+            
+            if (width <= 200 && height <= 200) {
+                
+            }
+        }
+        
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+}
+
+extension ViewController: UINavigationControllerDelegate {
+    
 }
