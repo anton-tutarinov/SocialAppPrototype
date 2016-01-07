@@ -162,20 +162,20 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Zu-D1-G54" customClass="IncomingImageHolderView" customModule="SocialAppPrototype" customModuleProvider="target">
-                                                    <rect key="frame" x="4" y="48" width="90" height="80"/>
+                                                    <rect key="frame" x="4" y="48" width="85" height="80"/>
                                                     <subviews>
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Tv8-ml-ogf">
-                                                            <rect key="frame" x="12" y="2" width="76" height="76"/>
+                                                            <rect key="frame" x="8" y="3" width="75" height="75"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="76" id="CU4-fs-b2N"/>
+                                                                <constraint firstAttribute="width" constant="75" id="CU4-fs-b2N"/>
                                                             </constraints>
                                                         </imageView>
                                                     </subviews>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                     <constraints>
                                                         <constraint firstAttribute="trailing" secondItem="Tv8-ml-ogf" secondAttribute="trailing" constant="2" id="2lU-B4-h5J"/>
-                                                        <constraint firstAttribute="width" constant="90" id="5qK-DD-ita"/>
-                                                        <constraint firstItem="Tv8-ml-ogf" firstAttribute="top" secondItem="6Zu-D1-G54" secondAttribute="top" constant="2" id="HZg-ln-zVD"/>
+                                                        <constraint firstAttribute="width" constant="85" id="5qK-DD-ita"/>
+                                                        <constraint firstItem="Tv8-ml-ogf" firstAttribute="top" secondItem="6Zu-D1-G54" secondAttribute="top" constant="3" id="HZg-ln-zVD"/>
                                                         <constraint firstAttribute="bottom" secondItem="Tv8-ml-ogf" secondAttribute="bottom" constant="2" id="R2w-oH-M9e"/>
                                                         <constraint firstAttribute="height" constant="80" id="rhd-Ys-nZ9"/>
                                                     </constraints>

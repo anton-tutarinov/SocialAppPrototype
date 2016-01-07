@@ -4,9 +4,9 @@ class MessageListRequest: Request {
     private var session: String?
     private var pageSize: UInt
     private var oldestMessageId: UInt
-    private var completion: (messageList: [Message]?, error: String?) -> Void
+    private var completion: (totalCount: Int, messageList: [Message]?, error: String?) -> Void
     
-    init(url: String, oldestMessageId: UInt, pageSize: UInt, session: String, completion: (messageList: [Message]?, error: String?) -> Void) {
+    init(url: String, oldestMessageId: UInt, pageSize: UInt, session: String, completion: (totalCount: Int, messageList: [Message]?, error: String?) -> Void) {
         self.oldestMessageId = oldestMessageId
         self.pageSize = pageSize
         self.session = session
@@ -37,13 +37,15 @@ class MessageListRequest: Request {
                         messageList.append(msg!)
                     }
                 }
+            
+                let totalMessageCount = Int(result["total_items_count"] as! String)!
                 
-                self.completion(messageList: messageList, error: nil)
+                self.completion(totalCount: totalMessageCount, messageList: messageList, error: nil)
             } else {
-                self.completion(messageList: nil, error: "Invalid response format")
+                self.completion(totalCount: 0, messageList: nil, error: "Invalid response format")
             }
         } else {
-            self.completion(messageList: nil, error: result["errorString"] as? String)
+            self.completion(totalCount: 0, messageList: nil, error: result["errorString"] as? String)
         }
     }
     

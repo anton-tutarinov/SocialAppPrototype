@@ -77,12 +77,13 @@ class ChatService {
     
     func loadMessageList(oldestId oldestId: UInt, pageSize: UInt) {
         let request = MessageListRequest(url: "\(apiHost)/messages", oldestMessageId: oldestId, pageSize: pageSize, session: session!,
-            completion: { (messageList, error) -> Void in
+            completion: { (totalCount, messageList, error) -> Void in
             var userInfo = [String: AnyObject]()
             
             if (messageList != nil) {
                 userInfo["result"] = true
                 userInfo["messageList"] = messageList
+                userInfo["totalCount"] = totalCount
             } else {
                 userInfo["result"] = false
                 userInfo["error"] = error

@@ -10,7 +10,11 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
+    private let messageListPageSize: UInt = 20
+    
     private var topOffset: CGFloat = 0.0
+    private var totalMessageCount: Int = 0
+    private var messageListLoading = false
     private var messages = [Message]()
     
     private var imageList = [String: UIImage]()
@@ -98,6 +102,10 @@ class ViewController: UIViewController {
             let keyboardRect = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue() {
                 keyboardSpaceConstraint?.constant = keyboardRect.height
                 view.layoutIfNeeded()
+                
+                if (messages.count > 0) {
+                    chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
+                }
         }
     }
     
@@ -112,14 +120,14 @@ class ViewController: UIViewController {
         }
         
         if let result = userInfo["result"] as? Bool {
-            if result == true {
+            if (result == true) {
                 var oldestId: UInt = 0
                 
-                if messages.count > 0 {
+                if (messages.count > 0) {
                     oldestId = messages[0].id
                 }
                 
-                ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: 20)
+                ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: messageListPageSize)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Login error", message: error)
             }
@@ -132,7 +140,7 @@ class ViewController: UIViewController {
         }
         
         if let result = userInfo["result"] as? Bool {
-            if result == true {
+            if (result == true) {
                 ChatService.sharedInstance.loadMessageList(oldestId: 0, pageSize: 1)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Send message error", message: error)
@@ -143,6 +151,8 @@ class ViewController: UIViewController {
     }
     
     func loadMessageListResultNotification(notification: NSNotification) {
+        messageListLoading = false
+        
         guard let userInfo = notification.userInfo as? [String: AnyObject] else {
             return
         }
@@ -150,6 +160,10 @@ class ViewController: UIViewController {
         if let messageList = userInfo["messageList"] as? [Message] {
             if (messageList.count > 0) {
                 addMessageList(messageList)
+            }
+            
+            if let totalCount = userInfo["totalCount"] as? Int {
+                totalMessageCount = totalCount
             }
         } else if let error = userInfo["error"] as? String {
             showAlert(title: "Load old messages error", message: error)
@@ -176,26 +190,13 @@ class ViewController: UIViewController {
     }
     
     private func requestMessageList() {
-        if (ChatService.sharedInstance.isLogin()) {
+        if (ChatService.sharedInstance.isLogin()) && (totalMessageCount > messages.count) {
             let oldestId = (messages.count > 0) ? messages[0].id : 1
             ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: 20)
         }
     }
     
-//    private func addNewMessage(message: Message) {
-//        let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(message)) as! MessageCell
-//        
-//        fillCellWithMessage(cell: cell, message: message)
-//        
-//        let size = cell.contentView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize)
-//        topOffset -= size.height
-//        
-//        messages.append(message)
-//        chatTableView.reloadData()
-//        chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: false)
-//    }
-    
-    private func addMessageList(messageList: [Message]) {
+    private func addMessageList(var messageList: [Message]) {
         if (topOffset > 0) {
             for msg in messageList {
                 let cell = chatTableView.dequeueReusableCellWithIdentifier(getCellIdForMessage(msg)) as! MessageCell
@@ -209,17 +210,48 @@ class ViewController: UIViewController {
             }
         }
         
-        var newMessageList = [Message]()
-        newMessageList.appendContentsOf(messageList)
-        newMessageList.appendContentsOf(messages)
-        messages = newMessageList
-        
-        messages.sortInPlace({ ( left, right) -> Bool in
+        messageList.sortInPlace({ ( left, right) -> Bool in
             return left.date!.compare(right.date!) == NSComparisonResult.OrderedAscending
         })
-        
-        chatTableView.reloadData()
-        chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
+
+        if (messages.count == 0) {
+            messages.appendContentsOf(messageList)
+            chatTableView.reloadData()
+//            chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
+        } else {
+            var indexPaths = [NSIndexPath]()
+            
+            if (messages[0].date!.compare(messageList[0].date!) == NSComparisonResult.OrderedDescending) {
+                var tmp = [Message]()
+                tmp.appendContentsOf(messageList)
+                tmp.appendContentsOf(messages)
+                messages = tmp
+                
+                for index in 0..<messageList.count {
+                    indexPaths.append(NSIndexPath(forRow: index, inSection: 0))
+                }
+                
+//                chatTableView.beginUpdates()
+//                chatTableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: UITableViewRowAnimation.None)
+//                chatTableView.endUpdates()
+//                chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messageList.count, inSection: 0), atScrollPosition: .Top, animated: false)
+                chatTableView.reloadData()
+            } else {
+                let start = messages.count
+                let end = start + messageList.count
+                
+                messages.appendContentsOf(messageList)
+                
+                for index in start..<end {
+                    indexPaths.append(NSIndexPath(forRow: index, inSection: 0))
+                }
+                
+                chatTableView.beginUpdates()
+                chatTableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: UITableViewRowAnimation.Automatic)
+                chatTableView.endUpdates()
+                chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
+            }
+        }
     }
     
     private func getCellIdForMessage(message: Message) -> String {
@@ -283,22 +315,6 @@ class ViewController: UIViewController {
         alertController.addAction(okAction)
         presentViewController(alertController, animated: true, completion:nil)
     }
-    
-//    private func scrollToBottom() {
-//        let delay = 0.1 * Double(NSEC_PER_SEC)
-//        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
-//        
-//        dispatch_after(time, dispatch_get_main_queue(), {
-//            
-//            let numberOfSections = self.chatTableView.numberOfSections
-//            let numberOfRows = self.chatTableView.numberOfRowsInSection(numberOfSections - 1)
-//            
-//            if numberOfRows > 0 {
-//                let indexPath = NSIndexPath(forRow: numberOfRows - 1, inSection: (numberOfSections - 1))
-//                self.chatTableView.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
-//            }
-//        })
-//    }
 }
 
 extension ViewController: UITableViewDataSource {
@@ -335,13 +351,14 @@ extension ViewController: UITableViewDelegate {
 
 extension ViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(scrollView: UIScrollView) {
-        if (scrollView.contentOffset.y == 0) {
+        if (scrollView.contentOffset.y == 0 && !messageListLoading) {
             requestMessageList()
+            messageListLoading = true
         }
     }
 }
 
-extension ViewController: UIImagePickerControllerDelegate {
+extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String: AnyObject]) {
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             let width = pickedImage.size.width
@@ -358,8 +375,4 @@ extension ViewController: UIImagePickerControllerDelegate {
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         dismissViewControllerAnimated(true, completion: nil)
     }
-}
-
-extension ViewController: UINavigationControllerDelegate {
-    
 }
