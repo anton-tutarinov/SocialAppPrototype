@@ -11,6 +11,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
     private let messageListPageSize: UInt = 8
+    private let messageMaxLength: Int = 255
     
     private var topOffset: CGFloat = 0.0
     private var totalMessageCount: Int = 0
@@ -21,6 +22,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        messageTextField.delegate = self
         
         let tapGesture = UITapGestureRecognizer(target: self, action: "hideKeyboard:")
         view.addGestureRecognizer(tapGesture)
@@ -374,6 +377,17 @@ extension ViewController: UIScrollViewDelegate {
             requestMessageList()
             allowMessageListLoading = false
         }
+    }
+}
+
+extension ViewController: UITextFieldDelegate {
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        guard let text = textField.text else {
+            return true
+        }
+        
+        let newLength = text.characters.count + string.characters.count - range.length
+        return newLength <= messageMaxLength
     }
 }
 
