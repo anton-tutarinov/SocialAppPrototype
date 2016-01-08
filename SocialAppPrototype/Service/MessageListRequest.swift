@@ -4,10 +4,12 @@ class MessageListRequest: Request {
     private var session: String?
     private var pageSize: UInt
     private var oldestMessageId: UInt
+    private var newestMessageId: UInt
     private var completion: (totalCount: Int, messageList: [Message]?, error: String?) -> Void
     
-    init(url: String, oldestMessageId: UInt, pageSize: UInt, session: String, completion: (totalCount: Int, messageList: [Message]?, error: String?) -> Void) {
+    init(url: String, oldestMessageId: UInt, newestMessageId: UInt, pageSize: UInt, session: String, completion: (totalCount: Int, messageList: [Message]?, error: String?) -> Void) {
         self.oldestMessageId = oldestMessageId
+        self.newestMessageId = newestMessageId
         self.pageSize = pageSize
         self.session = session
         self.completion = completion
@@ -19,7 +21,14 @@ class MessageListRequest: Request {
         var params = [String: String]()
         params["session"] = session
         params["paging_size"] = String(pageSize)
-        params["oldest_message_id"] = String(oldestMessageId)
+        
+        if (oldestMessageId > 0) {
+            params["oldest_message_id"] = String(oldestMessageId)
+        }
+        
+        if (newestMessageId > 0) {
+            params["newest_message_id"] = String(newestMessageId)
+        }
         
         createGetRequest(params: params, headers: nil)
         super.execute()

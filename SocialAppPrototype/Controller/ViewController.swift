@@ -10,11 +10,11 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
-    private let messageListPageSize: UInt = 20
+    private let messageListPageSize: UInt = 8
     
     private var topOffset: CGFloat = 0.0
     private var totalMessageCount: Int = 0
-    private var messageListLoading = false
+    private var allowMessageListLoading = true
     private var messages = [Message]()
     
     private var imageList = [String: UIImage]()
@@ -127,7 +127,7 @@ class ViewController: UIViewController {
                     oldestId = messages[0].id
                 }
                 
-                ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: messageListPageSize)
+                ChatService.sharedInstance.loadMessageList(oldestId: 0, newestId: 0, pageSize: messageListPageSize)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Login error", message: error)
             }
@@ -141,7 +141,13 @@ class ViewController: UIViewController {
         
         if let result = userInfo["result"] as? Bool {
             if (result == true) {
-                ChatService.sharedInstance.loadMessageList(oldestId: 0, pageSize: 1)
+                var newestId: UInt = 0
+                
+                if (messages.count > 0) {
+                    newestId = messages[messages.count - 1].id
+                }
+                
+                ChatService.sharedInstance.loadMessageList(oldestId: 0, newestId: newestId, pageSize: messageListPageSize)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Send message error", message: error)
             }
@@ -151,7 +157,7 @@ class ViewController: UIViewController {
     }
     
     func loadMessageListResultNotification(notification: NSNotification) {
-        messageListLoading = false
+        allowMessageListLoading = true
         
         guard let userInfo = notification.userInfo as? [String: AnyObject] else {
             return
@@ -192,7 +198,7 @@ class ViewController: UIViewController {
     private func requestMessageList() {
         if (ChatService.sharedInstance.isLogin()) && (totalMessageCount > messages.count) {
             let oldestId = (messages.count > 0) ? messages[0].id : 1
-            ChatService.sharedInstance.loadMessageList(oldestId: oldestId, pageSize: 20)
+            ChatService.sharedInstance.loadMessageList(oldestId: oldestId, newestId: 0, pageSize: messageListPageSize)
         }
     }
     
@@ -213,14 +219,25 @@ class ViewController: UIViewController {
         messageList.sortInPlace({ ( left, right) -> Bool in
             return left.date!.compare(right.date!) == NSComparisonResult.OrderedAscending
         })
-
+        
+        var insertIndexPaths = [NSIndexPath]()
+        
         if (messages.count == 0) {
             messages.appendContentsOf(messageList)
-            chatTableView.reloadData()
-//            chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
-        } else {
-            var indexPaths = [NSIndexPath]()
             
+            for index in 0..<messageList.count {
+                insertIndexPaths.append(NSIndexPath(forRow: index, inSection: 0))
+            }
+            
+            UIView.setAnimationsEnabled(false)
+            
+            chatTableView.beginUpdates()
+            chatTableView.insertRowsAtIndexPaths(insertIndexPaths, withRowAnimation: UITableViewRowAnimation.None)
+            chatTableView.endUpdates()
+            chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
+            
+            UIView.setAnimationsEnabled(true)
+        } else {
             if (messages[0].date!.compare(messageList[0].date!) == NSComparisonResult.OrderedDescending) {
                 var tmp = [Message]()
                 tmp.appendContentsOf(messageList)
@@ -228,14 +245,17 @@ class ViewController: UIViewController {
                 messages = tmp
                 
                 for index in 0..<messageList.count {
-                    indexPaths.append(NSIndexPath(forRow: index, inSection: 0))
+                    insertIndexPaths.append(NSIndexPath(forRow: index, inSection: 0))
                 }
+        
+                UIView.setAnimationsEnabled(false)
                 
-//                chatTableView.beginUpdates()
-//                chatTableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: UITableViewRowAnimation.None)
-//                chatTableView.endUpdates()
-//                chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messageList.count, inSection: 0), atScrollPosition: .Top, animated: false)
-                chatTableView.reloadData()
+                chatTableView.beginUpdates()
+                chatTableView.insertRowsAtIndexPaths(insertIndexPaths, withRowAnimation: UITableViewRowAnimation.None)
+                chatTableView.endUpdates()
+                chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messageList.count, inSection: 0), atScrollPosition: .Top, animated: false)
+                
+                UIView.setAnimationsEnabled(true)
             } else {
                 let start = messages.count
                 let end = start + messageList.count
@@ -243,13 +263,17 @@ class ViewController: UIViewController {
                 messages.appendContentsOf(messageList)
                 
                 for index in start..<end {
-                    indexPaths.append(NSIndexPath(forRow: index, inSection: 0))
+                    insertIndexPaths.append(NSIndexPath(forRow: index, inSection: 0))
                 }
                 
+                allowMessageListLoading = false
+                
                 chatTableView.beginUpdates()
-                chatTableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: UITableViewRowAnimation.Automatic)
+                chatTableView.insertRowsAtIndexPaths(insertIndexPaths, withRowAnimation: UITableViewRowAnimation.None)
                 chatTableView.endUpdates()
                 chatTableView.scrollToRowAtIndexPath(NSIndexPath(forRow: messages.count - 1, inSection: 0), atScrollPosition: .Bottom, animated: true)
+                
+                allowMessageListLoading = true
             }
         }
     }
@@ -351,9 +375,10 @@ extension ViewController: UITableViewDelegate {
 
 extension ViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(scrollView: UIScrollView) {
-        if (scrollView.contentOffset.y == 0 && !messageListLoading) {
+        
+        if (scrollView.contentOffset.y == 0 && allowMessageListLoading) {
             requestMessageList()
-            messageListLoading = true
+            allowMessageListLoading = false
         }
     }
 }

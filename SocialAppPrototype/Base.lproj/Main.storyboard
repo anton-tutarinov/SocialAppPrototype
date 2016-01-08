@@ -162,19 +162,19 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Zu-D1-G54" customClass="IncomingImageHolderView" customModule="SocialAppPrototype" customModuleProvider="target">
-                                                    <rect key="frame" x="4" y="48" width="85" height="80"/>
+                                                    <rect key="frame" x="4" y="48" width="90" height="80"/>
                                                     <subviews>
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Tv8-ml-ogf">
-                                                            <rect key="frame" x="8" y="3" width="75" height="75"/>
+                                                            <rect key="frame" x="8" y="3" width="80" height="75"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="75" id="CU4-fs-b2N"/>
+                                                                <constraint firstAttribute="width" constant="80" id="CU4-fs-b2N"/>
                                                             </constraints>
                                                         </imageView>
                                                     </subviews>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                     <constraints>
                                                         <constraint firstAttribute="trailing" secondItem="Tv8-ml-ogf" secondAttribute="trailing" constant="2" id="2lU-B4-h5J"/>
-                                                        <constraint firstAttribute="width" constant="85" id="5qK-DD-ita"/>
+                                                        <constraint firstAttribute="width" constant="90" id="5qK-DD-ita"/>
                                                         <constraint firstItem="Tv8-ml-ogf" firstAttribute="top" secondItem="6Zu-D1-G54" secondAttribute="top" constant="3" id="HZg-ln-zVD"/>
                                                         <constraint firstAttribute="bottom" secondItem="Tv8-ml-ogf" secondAttribute="bottom" constant="2" id="R2w-oH-M9e"/>
                                                         <constraint firstAttribute="height" constant="80" id="rhd-Ys-nZ9"/>
@@ -268,7 +268,7 @@
                                                     <rect key="frame" x="224" y="21" width="90" height="80"/>
                                                     <subviews>
                                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="V7t-Ze-Nej">
-                                                            <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
+                                                            <rect key="frame" x="2" y="2" width="80" height="76"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="80" id="t14-yD-nUy"/>
                                                             </constraints>
@@ -276,10 +276,10 @@
                                                     </subviews>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                     <constraints>
-                                                        <constraint firstItem="V7t-Ze-Nej" firstAttribute="top" secondItem="wLV-JL-Mmb" secondAttribute="top" id="DrY-hd-AvE"/>
+                                                        <constraint firstItem="V7t-Ze-Nej" firstAttribute="top" secondItem="wLV-JL-Mmb" secondAttribute="top" constant="2" id="DrY-hd-AvE"/>
                                                         <constraint firstAttribute="height" constant="80" id="Rwx-1y-CvK"/>
-                                                        <constraint firstItem="V7t-Ze-Nej" firstAttribute="leading" secondItem="wLV-JL-Mmb" secondAttribute="leading" id="X1v-lf-bAC"/>
-                                                        <constraint firstAttribute="bottom" secondItem="V7t-Ze-Nej" secondAttribute="bottom" id="cmv-f0-Oyy"/>
+                                                        <constraint firstItem="V7t-Ze-Nej" firstAttribute="leading" secondItem="wLV-JL-Mmb" secondAttribute="leading" constant="2" id="X1v-lf-bAC"/>
+                                                        <constraint firstAttribute="bottom" secondItem="V7t-Ze-Nej" secondAttribute="bottom" constant="2" id="cmv-f0-Oyy"/>
                                                         <constraint firstAttribute="width" constant="90" id="jWQ-MJ-M5R"/>
                                                     </constraints>
                                                 </view>

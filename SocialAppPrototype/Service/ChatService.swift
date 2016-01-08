@@ -75,8 +75,8 @@ class ChatService {
         }
     }
     
-    func loadMessageList(oldestId oldestId: UInt, pageSize: UInt) {
-        let request = MessageListRequest(url: "\(apiHost)/messages", oldestMessageId: oldestId, pageSize: pageSize, session: session!,
+    func loadMessageList(oldestId oldestId: UInt, newestId: UInt, pageSize: UInt) {
+        let request = MessageListRequest(url: "\(apiHost)/messages", oldestMessageId: oldestId, newestMessageId: newestId, pageSize: pageSize, session: session!,
             completion: { (totalCount, messageList, error) -> Void in
             var userInfo = [String: AnyObject]()
             
