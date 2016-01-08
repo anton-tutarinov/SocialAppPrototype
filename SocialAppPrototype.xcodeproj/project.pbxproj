@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BA36A5FB1C3E8DC400B05B0A /* IncomingImageHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA36A5FA1C3E8DC400B05B0A /* IncomingImageHolderView.swift */; };
+		BAFB6B8C1C3FD20B00EFDD57 /* UploadImageRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFB6B8B1C3FD20B00EFDD57 /* UploadImageRequest.swift */; };
 		BAFCAF061C3177EA009EC7CE /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEEB1C3177E9009EC7CE /* MessageCell.swift */; };
 		BAFCAF071C3177EA009EC7CE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEED1C3177E9009EC7CE /* ViewController.swift */; };
 		BAFCAF081C3177EA009EC7CE /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFCAEEF1C3177E9009EC7CE /* String+Extensions.swift */; };
@@ -37,6 +38,7 @@
 /* Begin PBXFileReference section */
 		BA36A5FA1C3E8DC400B05B0A /* IncomingImageHolderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingImageHolderView.swift; sourceTree = "<group>"; };
 		BA553D3B1C2C3E480062D014 /* BridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		BAFB6B8B1C3FD20B00EFDD57 /* UploadImageRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadImageRequest.swift; sourceTree = "<group>"; };
 		BAFCAEEB1C3177E9009EC7CE /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		BAFCAEED1C3177E9009EC7CE /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		BAFCAEEF1C3177E9009EC7CE /* String+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				BAFCAEF81C3177EA009EC7CE /* Request.swift */,
 				BAFCAEF91C3177EA009EC7CE /* SendMessageRequest.swift */,
 				BAFCAEFA1C3177EA009EC7CE /* UpdateSessionRequest.swift */,
+				BAFB6B8B1C3FD20B00EFDD57 /* UploadImageRequest.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -272,6 +275,7 @@
 				BAFCAF0C1C3177EA009EC7CE /* ChatService.swift in Sources */,
 				BA36A5FB1C3E8DC400B05B0A /* IncomingImageHolderView.swift in Sources */,
 				BAFCAF191C3177EA009EC7CE /* OutgoingTextView.swift in Sources */,
+				BAFB6B8C1C3FD20B00EFDD57 /* UploadImageRequest.swift in Sources */,
 				BAFCAF061C3177EA009EC7CE /* MessageCell.swift in Sources */,
 				BAFCAF0B1C3177EA009EC7CE /* User.swift in Sources */,
 				BAFCAF131C3177EA009EC7CE /* HttpService.swift in Sources */,

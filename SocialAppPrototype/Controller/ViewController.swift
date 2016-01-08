@@ -84,10 +84,10 @@ class ViewController: UIViewController {
     
     @IBAction func sendButtonPressed(sender: AnyObject) {
         if (ChatService.sharedInstance.isLogin()) {
-            let message: String = messageTextField.text!
+            let text: String = messageTextField.text!
             
-            if (message.characters.count > 0) {
-                ChatService.sharedInstance.sendMessage(message: message)
+            if (text.characters.count > 0) {
+                ChatService.sharedInstance.sendTextMessage(text)
                 
                 messageTextField.text = ""
                 messageTextField.resignFirstResponder()
@@ -121,12 +121,6 @@ class ViewController: UIViewController {
         
         if let result = userInfo["result"] as? Bool {
             if (result == true) {
-                var oldestId: UInt = 0
-                
-                if (messages.count > 0) {
-                    oldestId = messages[0].id
-                }
-                
                 ChatService.sharedInstance.loadMessageList(oldestId: 0, newestId: 0, pageSize: messageListPageSize)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Login error", message: error)
@@ -389,8 +383,16 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             let width = pickedImage.size.width
             let height = pickedImage.size.height
             
-            if (width <= 200 && height <= 200) {
+            if (width <= 600 && height <= 600) {
+                let imageData = UIImageJPEGRepresentation(pickedImage, 0.9)
                 
+                if (imageData?.length <= (200 * 1024)) {
+                    ChatService.sharedInstance.sendImageMessage(imageData!)
+                } else {
+                    showAlert(title: "Load old messages error", message: "Invalid image. The image size must not exceed 200Kb")
+                }
+            } else {
+                showAlert(title: "Send message error", message: "Invalid image. Image dimensinos must satisfy the following conditions: width <= 600, height <= 600")
             }
         }
         

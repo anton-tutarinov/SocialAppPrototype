@@ -1,12 +1,23 @@
 import Foundation
 
 class SendMessageRequest: Request {
-    private var message: String
     private var session: String
+    private var text: String?
+    private var imageUrl: String?
     private var completion: (error: String?) -> Void
     
-    init(url: String,  message: String, session: String, completion: (error: String?) -> Void) {
-        self.message = message
+    init(url: String, text: String, session: String, completion: (error: String?) -> Void) {
+        self.text = text
+        self.imageUrl = nil
+        self.session = session
+        self.completion = completion
+        
+        super.init(url: url)
+    }
+    
+    init(url: String, imageUrl: String, session: String, completion: (error: String?) -> Void) {
+        self.text = nil
+        self.imageUrl = imageUrl
         self.session = session
         self.completion = completion
         
@@ -17,9 +28,15 @@ class SendMessageRequest: Request {
         var headers = [String: String]()
         headers["Content-Type"] = "application/json"
         
-        let body = "{ \"session\": \"\(session)\", \"message\": { \"text\": \"\(message)\" } }"
+        var body: String?
         
-        createPostRequest(body: body, headers: headers)
+        if (text != nil) {
+            body = "{ \"session\": \"\(session)\", \"message\": { \"text\": \"\(text!)\" } }"
+        } else {
+            body = "{ \"session\": \"\(session)\", \"message\": { \"image_url\": \"\(imageUrl!)\" } }"
+        }
+        
+        createPostRequest(body: body!, headers: headers)
         super.execute()
     }
     
@@ -30,6 +47,4 @@ class SendMessageRequest: Request {
             self.completion(error: result["errorString"] as? String)
         }
     }
-    
-//    dataString	String?	"{\"Message\":{\"user_id\":\"9\",\"created_at\":\"2016-01-07 18:20:46\",\"updated_at\":\"2016-01-07 18:20:46\",\"text\":\"gg\"}}"	Some
 }

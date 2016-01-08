@@ -94,8 +94,8 @@ class ChatService {
         request.execute()
     }
     
-    func sendMessage(message message: String) {
-        let request = SendMessageRequest(url: "\(apiHost)/messages/message", message: message, session: session!,
+    func sendTextMessage(text: String) {
+        let request = SendMessageRequest(url: "\(apiHost)/messages/message", text: text, session: session!,
             completion: { (error: String?) -> Void in
             var userInfo = [String: AnyObject]()
             
@@ -111,8 +111,32 @@ class ChatService {
         request.execute()
     }
     
-    func sendImageMessage() {
-        
+    func sendImageMessage(imageData: NSData) {
+        let uploadRequest = UploadImageRequest(url: "\(apiHost)/image", imageData: imageData, session: session!) { (imageUrl, error) -> Void in
+            if (error == nil) {
+                let messageRequest = SendMessageRequest(url: "\(self.apiHost)/messages/message", imageUrl: imageUrl!, session: self.session!, completion: { (error) -> Void in
+                    var userInfo = [String: AnyObject]()
+                    
+                    if (error == nil) {
+                        userInfo["result"] = true
+                    } else {
+                        userInfo["result"] = false
+                        userInfo["error"] = error
+                    }
+                    
+                    self.postNotification(name: ChatService.sendMessageResultNotification, userInfo: userInfo)
+                })
+                messageRequest.execute()
+            } else {
+                var userInfo = [String: AnyObject]()
+                
+                userInfo["result"] = false
+                userInfo["error"] = error
+                
+                self.postNotification(name: ChatService.sendMessageResultNotification, userInfo: userInfo)
+            }
+        }
+        uploadRequest.execute()
     }
     
     private func updateSessionAndRepeat(prevRequest prevRequest: Request) {
