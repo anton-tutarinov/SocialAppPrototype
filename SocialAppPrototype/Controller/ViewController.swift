@@ -10,7 +10,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var keyboardSpaceConstraint: NSLayoutConstraint!
     
-    private let messageListPageSize: UInt = 8
+    private let messageListPageSize: UInt = 20
     private let messageMaxLength: Int = 255
     
     private var topOffset: CGFloat = 0.0
@@ -32,9 +32,6 @@ class ViewController: UIViewController {
         chatTableView.rowHeight = UITableViewAutomaticDimension
         
         ChatService.sharedInstance.login()
-        
-        //TEST
-//        imageList["Test"] = UIImage(named: "Test")
     }
     
     override func didReceiveMemoryWarning() {
@@ -64,16 +61,6 @@ class ViewController: UIViewController {
     
     override func viewDidAppear(animated: Bool) {
         topOffset = chatTableView.frame.size.height
-        
-        // TEST
-//        addNewMessage(Message(messageId: 1, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
-//        addNewMessage(Message(messageId: 2, messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet.", imageUrl: nil))
-//        addNewMessage(Message(messageId: 3, messageType: Message.MessageType.InText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit.", imageUrl: nil))
-//        addNewMessage(Message(messageId: 4, messageType: Message.MessageType.OutImage, date: NSDate(), text: nil, imageUrl: "Test"))
-        
-//        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
-//        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
-//        addNewMessage(Message(messageType: Message.MessageType.OutText, date: NSDate(), text: "Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit. Lorem ipsum dolor sit amet, consect adipiscing elit.", image: nil))
     }
     
     @IBAction func addButtonPressed(sender: AnyObject) {
@@ -124,6 +111,7 @@ class ViewController: UIViewController {
         
         if let result = userInfo["result"] as? Bool {
             if (result == true) {
+                allowMessageListLoading = false
                 ChatService.sharedInstance.loadMessageList(oldestId: 0, newestId: 0, pageSize: messageListPageSize)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Login error", message: error)
@@ -144,6 +132,7 @@ class ViewController: UIViewController {
                     newestId = messages[messages.count - 1].id
                 }
                 
+                allowMessageListLoading = false
                 ChatService.sharedInstance.loadMessageList(oldestId: 0, newestId: newestId, pageSize: messageListPageSize)
             } else if let error = userInfo["error"] as? String {
                 showAlert(title: "Send message error", message: error)
@@ -154,9 +143,8 @@ class ViewController: UIViewController {
     }
     
     func loadMessageListResultNotification(notification: NSNotification) {
-        allowMessageListLoading = true
-        
         guard let userInfo = notification.userInfo as? [String: AnyObject] else {
+            allowMessageListLoading = true
             return
         }
         
@@ -171,6 +159,8 @@ class ViewController: UIViewController {
         } else if let error = userInfo["error"] as? String {
             showAlert(title: "Load old messages error", message: error)
         }
+        
+        allowMessageListLoading = true
     }
     
     func imageDownloaderSuccessNotification(notification: NSNotification) {
@@ -190,13 +180,6 @@ class ViewController: UIViewController {
     
     func hideKeyboard(recognizer: UITapGestureRecognizer) {
         messageTextField.resignFirstResponder()
-    }
-    
-    private func requestMessageList() {
-        if (ChatService.sharedInstance.isLogin()) && (totalMessageCount > messages.count) {
-            let oldestId = (messages.count > 0) ? messages[0].id : 1
-            ChatService.sharedInstance.loadMessageList(oldestId: oldestId, newestId: 0, pageSize: messageListPageSize)
-        }
     }
     
     private func addMessageList(var messageList: [Message]) {
@@ -374,8 +357,11 @@ extension ViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(scrollView: UIScrollView) {
         
         if (scrollView.contentOffset.y == 0 && allowMessageListLoading) {
-            requestMessageList()
-            allowMessageListLoading = false
+            if (ChatService.sharedInstance.isLogin()) && (totalMessageCount > messages.count) {
+                let oldestId = (messages.count > 0) ? messages[0].id : 0
+                allowMessageListLoading = false
+                ChatService.sharedInstance.loadMessageList(oldestId: oldestId, newestId: 0, pageSize: messageListPageSize)
+            }
         }
     }
 }
@@ -403,10 +389,10 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
                 if (imageData?.length <= (200 * 1024)) {
                     ChatService.sharedInstance.sendImageMessage(imageData!)
                 } else {
-                    showAlert(title: "Load old messages error", message: "Invalid image. The image size must not exceed 200Kb")
+                    showAlert(title: "Send image error", message: "Invalid image. The image size must not exceed 200Kb")
                 }
             } else {
-                showAlert(title: "Send message error", message: "Invalid image. Image dimensinos must satisfy the following conditions: width <= 600, height <= 600")
+                showAlert(title: "Send image error", message: "Invalid image. Image dimensinos must satisfy the following conditions: width <= 600, height <= 600")
             }
         }
         
