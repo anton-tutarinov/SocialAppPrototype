@@ -9,7 +9,8 @@ class ChatService {
     
     var user: User?
     
-    private let apiHost: String = "http://52.192.101.131"
+//    private let apiHost: String = "http://localhost/socialapp"
+    private let apiHost: String = "http://ec2-54-191-142-152.us-west-2.compute.amazonaws.com"
     private var session: String?
 
     private var opQueue = NSOperationQueue()

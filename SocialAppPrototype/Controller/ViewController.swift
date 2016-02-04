@@ -317,7 +317,7 @@ class ViewController: UIViewController {
         }
         
         alertController.addAction(okAction)
-        presentViewController(alertController, animated: true, completion:nil)
+        self.presentViewController(alertController, animated: true, completion:nil)
     }
 }
 

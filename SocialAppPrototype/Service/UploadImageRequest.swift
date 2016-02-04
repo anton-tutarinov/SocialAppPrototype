@@ -42,7 +42,7 @@ class UploadImageRequest: Request {
     
     override func processResult(result result: [String: AnyObject]) {
         if ((result["status"] as! String) == "ok") {
-            self.completion(imageUrl: result["imageUrl"] as? String, error: nil)
+            self.completion(imageUrl: result["image_url"] as? String, error: nil)
         } else {
             self.completion(imageUrl: nil, error: result["errorString"] as? String)
         }
